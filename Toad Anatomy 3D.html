@@ -1,0 +1,1510 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Toad Anatomy 3D</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Interactive 3D cane toad (Rhinella marina) anatomy explorer and practical quiz for Bio 110 Exercise 9, UP Manila.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout concept: a dissecting bench. The 3D specimen sits on a dark wax tray that stays dark in both themes;
+   everything around it is a cool lab-notebook page with specimen-tag labels. */
+:root{
+  --bg:#eceee7;
+  --surface:#f7f8f3;
+  --surface-2:#e2e6dc;
+  --ink:#1b2017;
+  --muted:#545d4f;
+  --line:#c9d0c0;
+  --accent:#3d5a1e;
+  --accent-ink:#ffffff;
+  --accent-soft:#dbe6c9;
+  --tag:#9a5216;
+  --tag-soft:#f3e2cf;
+  --good:#1d6b34;
+  --good-soft:#d6ecd9;
+  --bad:#a3231b;
+  --bad-soft:#f6d9d5;
+  --stage:#15191b;
+  --stage-2:#20262a;
+  --stage-ink:#e6ebdf;
+  --stage-muted:#9aa595;
+  --focus:#1f63c9;
+  --display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111410; --surface:#191d16; --surface-2:#222820; --ink:#e3e8da; --muted:#a3ad98; --line:#30382b;
+    --accent:#a5c873; --accent-ink:#11170b; --accent-soft:#2a3620; --tag:#e5a265; --tag-soft:#3a2a1b;
+    --good:#6ccf88; --good-soft:#1c3324; --bad:#ff8f84; --bad-soft:#3d1f1c;
+    --stage:#0c0f10; --stage-2:#171c1f; --focus:#7fb0ff; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111410; --surface:#191d16; --surface-2:#222820; --ink:#e3e8da; --muted:#a3ad98; --line:#30382b;
+  --accent:#a5c873; --accent-ink:#11170b; --accent-soft:#2a3620; --tag:#e5a265; --tag-soft:#3a2a1b;
+  --good:#6ccf88; --good-soft:#1c3324; --bad:#ff8f84; --bad-soft:#3d1f1c;
+  --stage:#0c0f10; --stage-2:#171c1f; --focus:#7fb0ff; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top, 0px);z-index:10;background:var(--surface)}
+h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h2{font-size:clamp(1.5rem,1.2rem + 1.2vw,2.1rem);font-weight:800;letter-spacing:-.01em}
+h3{font-size:1.2rem;font-weight:700}
+p{margin:0}
+a{color:var(--accent)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:16px;top:-60px;background:var(--accent);color:var(--accent-ink);padding:8px 14px;border-radius:6px;z-index:50}
+.skip:focus{top:calc(env(safe-area-inset-top,0px) + 8px)}
+.wrap{max-width:1320px;margin:0 auto}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line);
+  margin-left:calc(-1 * max(16px, env(safe-area-inset-left, 0px)));margin-right:calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.top-in{display:flex;align-items:center;gap:14px 20px;flex-wrap:wrap;padding-block:10px}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-right:auto;min-width:0}
+.brand-name{font-family:var(--display);font-weight:800;font-size:1.3rem;letter-spacing:-.02em}
+.tag{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--tag);background:var(--tag-soft);padding:2px 8px;border-radius:3px;border:1px dashed currentColor}
+.tabs{display:flex;gap:4px;flex-wrap:wrap}
+.tabs a{text-decoration:none;color:var(--muted);font-weight:700;padding:7px 12px;border-radius:999px;border:1px solid transparent}
+.tabs a:hover{color:var(--ink);border-color:var(--line)}
+.tabs a[aria-current="page"]{background:var(--accent);color:var(--accent-ink)}
+.prog{font-family:var(--mono);font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.icon-btn{background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer;font-size:.85rem}
+.icon-btn:hover{border-color:var(--accent)}
+
+main{padding-block:22px 64px}
+.view{display:flex;flex-direction:column;gap:22px}
+.lede{color:var(--muted);max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--tag)}
+
+/* explore */
+.bench{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px;align-items:start}
+@media (max-width:960px){.bench{grid-template-columns:minmax(0,1fr)}}
+.stage{position:relative;background:radial-gradient(120% 90% at 50% 35%, var(--stage-2), var(--stage));border-radius:14px;overflow:hidden;height:min(74vh,700px);min-height:380px;color:var(--stage-ink);touch-action:none;user-select:none;-webkit-user-select:none}
+@media (max-width:600px){.stage{height:62vh;min-height:340px}}
+.stage canvas{display:block;width:100%;height:100%;cursor:grab}
+.stage canvas:active{cursor:grabbing}
+.stage-bar{position:absolute;left:10px;top:10px;right:10px;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none}
+.stage-bar button{pointer-events:auto;background:rgba(20,24,26,.78);color:var(--stage-ink);border:1px solid rgba(230,235,223,.22);border-radius:6px;padding:5px 9px;font-family:var(--mono);font-size:.72rem;letter-spacing:.04em;cursor:pointer}
+.stage-bar button:hover{border-color:rgba(230,235,223,.6)}
+.stage-hint{position:absolute;left:12px;bottom:10px;font-family:var(--mono);font-size:.7rem;color:var(--stage-muted);pointer-events:none;max-width:calc(100% - 24px)}
+.stage-mode{position:absolute;right:12px;bottom:10px;font-family:var(--mono);font-size:.7rem;color:var(--stage-ink);background:rgba(20,24,26,.7);padding:3px 8px;border-radius:4px;pointer-events:none}
+.stage-msg{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:var(--stage-muted);font-family:var(--mono);font-size:.85rem}
+.dirlabels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.dirlabels span{position:absolute;transform:translate(-50%,-50%);font-family:var(--mono);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:#d8c690;background:rgba(12,15,16,.6);padding:1px 5px;border-radius:3px;white-space:nowrap}
+.dirlabels span.plane{color:#9fd3e6}
+.tip{position:absolute;pointer-events:none;background:#f5f1df;color:#1b2017;font-weight:700;font-size:.82rem;padding:4px 8px;border-radius:5px;transform:translate(12px,-130%);white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,.35)}
+.pin{position:absolute;pointer-events:none;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center}
+.pin b{background:#ffd23f;color:#1b1600;font-family:var(--display);font-weight:800;width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center;box-shadow:0 2px 10px rgba(0,0,0,.5)}
+.pin b span{transform:rotate(45deg)}
+.pin i{width:2px;height:20px;background:#ffd23f}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.panel h3{font-size:1rem}
+.lbl{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:block}
+.seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.seg button,.chip{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer;font-weight:700;font-size:.9rem;text-align:left}
+.seg button[aria-pressed="true"],.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.seg button small{display:block;font-weight:400;font-size:.75rem;opacity:.85}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:5px 10px;font-size:.82rem;border-radius:999px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.check{display:flex;align-items:center;gap:8px;font-size:.92rem;cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--accent)}
+.info{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:8px}
+.info h3{font-size:1.25rem}
+.info .meta{font-family:var(--mono);font-size:.72rem;color:var(--tag);text-transform:uppercase;letter-spacing:.06em}
+.info .aka{font-size:.85rem;color:var(--muted)}
+.info .action{background:var(--accent-soft);border-radius:6px;padding:6px 10px;font-size:.92rem}
+.search{width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg)}
+.plist{max-height:300px;overflow:auto;display:flex;flex-direction:column;gap:2px;border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--bg)}
+.plist .grp{font-family:var(--mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--tag);padding:8px 6px 2px}
+.plist button{background:none;border:0;text-align:left;padding:5px 8px;border-radius:5px;cursor:pointer;font-size:.9rem}
+.plist button:hover{background:var(--surface-2)}
+.plist button[aria-pressed="true"]{background:var(--accent-soft);font-weight:700}
+.note{font-size:.85rem;color:var(--muted)}
+
+/* text sections */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:clamp(16px,2.5vw,26px)}
+.prose{display:flex;flex-direction:column;gap:12px;max-width:72ch}
+.prose h4{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--tag);margin:6px 0 0}
+.prose ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px}
+.sys-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:18px}
+.sys-card{display:flex;flex-direction:column;gap:14px;min-width:0}
+.sys-card header{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;padding:9px 16px;font-weight:700;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+details.cy{border:1px dashed var(--line);border-radius:8px;padding:8px 12px}
+details.cy summary{cursor:pointer;font-weight:700}
+details.cy p{margin-top:6px;color:var(--muted)}
+.flag{border-left:4px solid var(--tag);background:var(--tag-soft);padding:12px 14px;border-radius:0 8px 8px 0}
+.flag ul{margin:6px 0 0;padding-left:1.2em}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.map svg{width:100%;height:auto;max-width:900px;display:block;margin:0 auto}
+
+/* remember */
+.mn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:14px}
+.mn{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.mn .phrase{font-family:var(--display);font-size:1.2rem;font-weight:800;color:var(--accent);line-height:1.2}
+.mn .key{font-family:var(--mono);font-size:.78rem;color:var(--muted)}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+.vs > div{padding:12px 14px;min-width:0}
+.vs > div + div{border-left:1px solid var(--line)}
+.vs b{display:block;font-family:var(--display);font-size:1.05rem}
+.vs span{font-size:.88rem;color:var(--muted)}
+.fc-wrap{display:flex;flex-direction:column;gap:12px;align-items:stretch;max-width:620px}
+.fc{perspective:1200px;height:240px;cursor:pointer;border:0;background:none;padding:0;text-align:left}
+.fc-in{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.fc[aria-pressed="true"] .fc-in{transform:rotateY(180deg)}
+.fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:14px;padding:20px;display:flex;flex-direction:column;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--surface);overflow:auto}
+.fc-face.back{transform:rotateY(180deg);background:var(--accent-soft)}
+.fc-face .big{font-family:var(--display);font-size:1.6rem;font-weight:800}
+.fc-face .sm{font-family:var(--mono);font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--tag)}
+
+/* quiz */
+.qsetup{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+.qrun{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:18px;align-items:start}
+.qrun.textonly{grid-template-columns:minmax(0,760px)}
+@media (max-width:960px){.qrun{grid-template-columns:minmax(0,1fr)}}
+.qcard{display:flex;flex-direction:column;gap:14px}
+.qhead{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.qprompt{font-family:var(--display);font-size:clamp(1.25rem,1rem + 1vw,1.6rem);font-weight:700;line-height:1.25}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;font-size:.98rem}
+.opt kbd{font-family:var(--mono);font-size:.75rem;border:1px solid var(--line);border-radius:4px;padding:1px 6px;background:var(--surface);flex:none;margin-top:2px}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.ok{background:var(--good-soft);border-color:var(--good)}
+.opt.no{background:var(--bad-soft);border-color:var(--bad)}
+.opt:disabled{cursor:default}
+.fb{border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.fb.ok{background:var(--good-soft);border:1px solid var(--good)}
+.fb.no{background:var(--bad-soft);border:1px solid var(--bad)}
+.fb strong{font-family:var(--display)}
+.ans{display:flex;gap:8px;flex-wrap:wrap}
+.ans input{flex:1 1 200px;min-width:0;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);font-size:1rem}
+.timer{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+.timer i{display:block;height:100%;background:var(--tag);width:100%;transition:width .25s linear}
+.qmap{display:flex;flex-wrap:wrap;gap:4px}
+.qmap span{width:14px;height:14px;border-radius:3px;background:var(--surface-2);border:1px solid var(--line)}
+.qmap span.ok{background:var(--good)} .qmap span.no{background:var(--bad)} .qmap span.cur{outline:2px solid var(--accent);outline-offset:1px}
+.score-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;font-variant-numeric:tabular-nums}
+.bar{height:8px;background:var(--surface-2);border-radius:4px;overflow:hidden;grid-column:1 / -1}
+.bar i{display:block;height:100%;background:var(--accent)}
+.missed li{margin-bottom:4px}
+.kbdhint{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+</style>
+
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <div class="wrap top-in">
+    <div class="brand"><span class="brand-name">Toad Anatomy 3D</span><span class="tag">Rhinella marina · Bio 110 Ex. 9</span></div>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#explore" data-route="explore">Explore</a>
+      <a href="#learn" data-route="learn">Learn</a>
+      <a href="#remember" data-route="remember">Remember</a>
+      <a href="#quiz" data-route="quiz">Quiz</a>
+    </nav>
+    <span class="prog" id="prog" aria-live="off"></span>
+    <button class="icon-btn" id="themeBtn" type="button" aria-label="Change color theme">Theme: auto</button>
+  </div>
+</header>
+
+<main id="main" class="wrap" tabindex="-1">
+
+<!-- ============ EXPLORE ============ -->
+<section id="explore" class="view" aria-labelledby="ex-h">
+  <div>
+    <p class="eyebrow">Dissecting bench</p>
+    <h2 id="ex-h">Turn the specimen, peel the layers, click any part</h2>
+    <p class="lede">Drag to rotate, scroll or pinch to zoom, right-drag (or two-finger drag) to pan. Pick a layer on the right; every structure on the Exercise 9 checklist is clickable. Positions are schematic, so use the frog atlas for exact shapes.</p>
+  </div>
+  <div class="bench">
+    <div id="slot-explore">
+      <div class="stage" id="stage">
+        <canvas id="cv" role="img" aria-label="Interactive 3D model of a cane toad. Use the part list beside it to select structures with a keyboard."></canvas>
+        <div class="dirlabels" id="dirLabels" aria-hidden="true"></div>
+        <div id="pinLayer" aria-hidden="true"></div>
+        <div class="tip" id="tip" hidden></div>
+        <div class="stage-bar" role="toolbar" aria-label="Camera views">
+          <button type="button" data-view="dorsal">Dorsal</button>
+          <button type="button" data-view="ventral">Ventral</button>
+          <button type="button" data-view="left">Left lateral</button>
+          <button type="button" data-view="right">Right lateral</button>
+          <button type="button" data-view="anterior">Anterior</button>
+          <button type="button" data-view="posterior">Posterior</button>
+          <button type="button" data-view="reset">Reset</button>
+        </div>
+        <div class="stage-hint" id="stageHint">Drag · rotate &nbsp; Scroll · zoom &nbsp; Right-drag · pan</div>
+        <div class="stage-mode" id="stageMode"></div>
+        <div class="stage-msg" id="stageMsg">Loading the 3D specimen…</div>
+      </div>
+    </div>
+
+    <aside class="panel" aria-label="Model controls and part information">
+      <div>
+        <span class="lbl" id="lay-l">Layer</span>
+        <div class="seg" role="group" aria-labelledby="lay-l" id="layerBtns">
+          <button type="button" data-mode="ext" aria-pressed="true">Skin<small>External regions</small></button>
+          <button type="button" data-mode="mus" aria-pressed="false">Muscles<small>After skinning</small></button>
+          <button type="button" data-mode="org" aria-pressed="false">Organs<small>5 systems</small></button>
+          <button type="button" data-mode="skel" aria-pressed="false">Skeleton<small>Bones &amp; cartilage</small></button>
+        </div>
+      </div>
+      <div id="sysBox" hidden>
+        <span class="lbl" id="sys-l">Organ systems shown</span>
+        <div class="chips" role="group" aria-labelledby="sys-l" id="sysChips"></div>
+      </div>
+      <div class="row">
+        <span class="lbl" id="sex-l" style="margin:0">Specimen</span>
+        <div class="chips" role="group" aria-labelledby="sex-l">
+          <button type="button" class="chip" data-sex="m" aria-pressed="true">Male</button>
+          <button type="button" class="chip" data-sex="f" aria-pressed="false">Female</button>
+        </div>
+      </div>
+      <div class="row" style="gap:14px">
+        <label class="check"><input type="checkbox" id="optDirs" checked> Direction labels</label>
+        <label class="check"><input type="checkbox" id="optPlanes"> Body planes</label>
+      </div>
+      <div class="info" id="info" aria-live="polite">
+        <p class="meta">Nothing selected</p>
+        <h3>Click a structure</h3>
+        <p class="note">Hover to see names, click to read what it is and what it does. Selected parts glow on the model.</p>
+      </div>
+      <div>
+        <label class="lbl" for="pSearch">Parts in this layer</label>
+        <input class="search" id="pSearch" type="search" placeholder="Search, e.g. sartorius" autocomplete="off">
+        <div class="plist" id="plist" role="list" style="margin-top:8px"></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ============ LEARN ============ -->
+<section id="learn" class="view" aria-labelledby="le-h" hidden>
+  <div>
+    <p class="eyebrow">Learn</p>
+    <h2 id="le-h">How the toad body fits together</h2>
+    <p class="lede">Start with the big picture, then go system by system. Each section runs what it is, how it works, then why it is built that way. The chips under each section are the exact checklist from your manual; tap one to see it on the model.</p>
+  </div>
+
+  <div class="card map">
+    <h3 style="margin-bottom:10px">The big picture</h3>
+    <svg viewBox="0 0 900 360" role="img" aria-labelledby="mapT mapD">
+      <title id="mapT">Concept map of toad organ systems</title>
+      <desc id="mapD">Skeleton and muscles work as levers for jumping and for buccal pumping. The mylohyoid raises the mouth floor to push air into the lungs. The skin and lungs both exchange gas, and the pulmo-cutaneous artery serves both. The heart sends blood through three arches. The nervous system coordinates everything. The digestive and urogenital systems both empty into the cloaca, which opens at the vent.</desc>
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker></defs>
+      <g font-family="var(--body)" font-size="14" fill="var(--ink)">
+        <g stroke="var(--muted)" stroke-width="1.6" fill="none" marker-end="url(#ah)">
+          <path d="M175 85 L300 85"/>
+          <path d="M400 110 L400 160"/>
+          <path d="M470 85 L600 85"/>
+          <path d="M660 110 L560 175"/>
+          <path d="M175 110 L320 180"/>
+          <path d="M470 200 L600 250"/>
+          <path d="M300 295 L455 295"/>
+          <path d="M760 280 L600 295"/>
+        </g>
+        <g font-size="12" fill="var(--muted)">
+          <text x="190" y="75">levers for jumping</text>
+          <text x="410" y="140">mylohyoid pumps air</text>
+          <text x="490" y="75">gas exchange</text>
+          <text x="618" y="148">pulmo-cutaneous artery</text>
+          <text x="186" y="160">brain → muscles</text>
+          <text x="520" y="250">O₂, nutrients</text>
+          <text x="320" y="285">feces</text>
+          <text x="640" y="315">urine, eggs/sperm</text>
+        </g>
+        <g>
+          <rect x="30" y="60" width="145" height="50" rx="8" fill="var(--surface-2)" stroke="var(--line)"/><text x="102" y="90" text-anchor="middle" font-weight="700">Skeleton</text>
+          <rect x="300" y="60" width="170" height="50" rx="8" fill="var(--surface-2)" stroke="var(--line)"/><text x="385" y="90" text-anchor="middle" font-weight="700">Muscles</text>
+          <rect x="600" y="60" width="150" height="50" rx="8" fill="var(--surface-2)" stroke="var(--line)"/><text x="675" y="83" text-anchor="middle" font-weight="700">Skin</text><text x="675" y="100" text-anchor="middle" font-size="12" fill="var(--muted)">+ lungs</text>
+          <rect x="320" y="160" width="240" height="50" rx="8" fill="var(--accent-soft)" stroke="var(--accent)"/><text x="440" y="190" text-anchor="middle" font-weight="700">Heart &amp; vessels</text>
+          <rect x="30" y="270" width="270" height="50" rx="8" fill="var(--surface-2)" stroke="var(--line)"/><text x="165" y="300" text-anchor="middle" font-weight="700">Digestive tract</text>
+          <rect x="460" y="270" width="140" height="50" rx="8" fill="var(--tag-soft)" stroke="var(--tag)"/><text x="530" y="300" text-anchor="middle" font-weight="700">Cloaca → vent</text>
+          <rect x="760" y="250" width="120" height="50" rx="8" fill="var(--surface-2)" stroke="var(--line)"/><text x="820" y="280" text-anchor="middle" font-weight="700">Urogenital</text>
+          <rect x="30" y="170" width="160" height="0" fill="none"/>
+        </g>
+        <text x="30" y="40" font-size="12" fill="var(--muted)">Nervous system (brain + spinal cord) coordinates all of these; pithing works by destroying it.</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="flag" role="note">
+    <strong>Where the manual and the specimen differ</strong>
+    <ul>
+      <li>The manual's text and atlas describe the <em>frog</em>; your specimen is the cane toad, <em>Rhinella marina</em> (Bufonidae). The plan is the same, but toads have parotoid ("poison") glands, drier warty skin, shorter legs and no teeth.</li>
+      <li>The manual says male toads have vocal <em>sacs</em>. Most references describe a single subgular vocal sac in <em>R. marina</em> males. Go with your instructor's wording on the practical.</li>
+      <li>The checklist lists "atrium" (singular), but the heart has two atria, right and left. The model shows both.</li>
+      <li>Gracilis minor appears in both the ventral and dorsal thigh lists because it wraps the posterior edge of the thigh. It is one muscle.</li>
+      <li>The rectus femoris anticus is listed under the dorsal thigh in the manual; some atlases call it part of the triceps femoris on the anterior-dorsal side.</li>
+    </ul>
+  </div>
+
+  <div class="card prose" id="terms">
+    <p class="eyebrow">A · Regions, directions, axes and planes</p>
+    <h3>Directions</h3>
+    <p><strong>What:</strong> a fixed vocabulary for "where" that does not change when the specimen is flipped. <strong>How:</strong> every term is relative to the animal, never to you, so the toad's left stays its left even when it lies ventral side up in the pan. <strong>Why:</strong> during a move-type practical the specimen may face any way, so "dorsal" and "anterior" are the only descriptions that stay true.</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Term</th><th>Meaning</th><th>Toad example</th></tr></thead>
+      <tbody>
+        <tr><td>anterior · cephalic · cranial</td><td>toward the head</td><td>eyes are anterior to the vent</td></tr>
+        <tr><td>posterior · caudal</td><td>toward the tail end</td><td>urostyle is posterior to the sacral vertebra</td></tr>
+        <tr><td>dorsal</td><td>back, upper side</td><td>dorsal hump, kidneys lie dorsal to the gut</td></tr>
+        <tr><td>ventral</td><td>belly, underside</td><td>heart and anterior abdominal vein are ventral</td></tr>
+        <tr><td>medial · median</td><td>toward / at the midline</td><td>rectus abdominis lies medial to the external oblique</td></tr>
+        <tr><td>lateral</td><td>toward the side</td><td>tympanic membranes are on the lateral head</td></tr>
+        <tr><td>proximal</td><td>closer to the vertebral column or centre of gravity</td><td>thigh is proximal to shank</td></tr>
+        <tr><td>distal</td><td>farther away, toward the extremities</td><td>digits are distal to the carpus</td></tr>
+      </tbody>
+    </table></div>
+    <h3>Axes and planes</h3>
+    <p>The <strong>antero-posterior (longitudinal) axis</strong> runs snout to vent; a <strong>dorso-ventral axis</strong> crosses it from back to belly. Turn on "Body planes" in Explore to see the three planes below.</p>
+    <ul>
+      <li><strong>Median plane</strong>: vertical, head to tail, splits the body into equal right and left halves. A <strong>sagittal</strong> plane is the median plane or any plane parallel to it.</li>
+      <li><strong>Horizontal (frontal) plane</strong>: at right angles to the median and transverse planes; splits dorsal from ventral.</li>
+      <li><strong>Transverse plane (cross section)</strong>: at right angles to the median plane; splits cranial from caudal.</li>
+    </ul>
+    <details class="cy"><summary>Check yourself</summary><p>The toad lies ventral side up. Is its heart "above" or "below" its vertebral column in anatomical terms? <em>Ventral to it, regardless of how the pan is turned.</em></p><p>Which plane would cut both eyes in half at once? <em>A transverse or a horizontal plane through the eyes; a median plane would miss both.</em></p></details>
+  </div>
+
+  <div class="sys-grid" id="learnSystems"></div>
+
+  <div class="card prose">
+    <p class="eyebrow">Procedure · double pithing and opening the toad</p>
+    <h3>Why the steps go in this order</h3>
+    <p><strong>What:</strong> pithing destroys the brain (cranial) and then the spinal cord (spinal) so the animal feels nothing and lies still, while the heart keeps beating for a while. <strong>How:</strong> the needle enters the crease between the skull and the atlas at 90°, is tipped forward through the <strong>foramen magnum</strong> about 8–10 mm into the braincase and swept left-right, then pulled back to 1–2 mm, turned to point caudally, and pushed about 30 mm down the neural canal. The legs extend and stiffen as the cord is destroyed, then go flaccid.</p>
+    <p><strong>Why it matters for anatomy:</strong> the needle path is a skeletal lesson in itself. You aim for the crease because the cranium ends and the atlas begins there, and the foramen magnum is the doorway from the neural canal into the braincase.</p>
+    <p><strong>Opening the body:</strong> on a preserved toad you cut a few millimetres right of centre; on a live (pithed) toad you cut along the left external oblique and angle to the chest. Both avoid the <strong>anterior abdominal vein</strong>, which runs along the midventral wall to the liver. Then the pectoral girdle is cut and spread to expose the heart.</p>
+    <p><strong>Skinning a leg:</strong> preserved toads are skinned by cutting the ventral skin and unwrapping; freshly pithed toads peel like a stocking from the thigh downward, worked along the joints.</p>
+  </div>
+</section>
+
+<!-- ============ REMEMBER ============ -->
+<section id="remember" class="view" aria-labelledby="re-h" hidden>
+  <div>
+    <p class="eyebrow">Remember</p>
+    <h2 id="re-h">Mnemonics, look-alikes and flashcards</h2>
+    <p class="lede">Lists in the manual go anterior to posterior or medial to lateral; the phrases below keep that order.</p>
+  </div>
+  <div class="mn-grid" id="mnGrid"></div>
+
+  <div class="card prose" style="max-width:none">
+    <h3>Don't mix these up</h3>
+    <div class="sys-grid" id="vsGrid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:12px"></div>
+  </div>
+
+  <div class="card">
+    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <h3>Flashcards</h3>
+      <div class="row">
+        <label class="sr-only" for="fcSys">Flashcard set</label>
+        <select id="fcSys" class="search" style="width:auto"></select>
+        <label class="check"><input type="checkbox" id="fcReview"> Only cards to review</label>
+      </div>
+    </div>
+    <div class="fc-wrap">
+      <button class="fc" id="fc" type="button" aria-pressed="false" aria-label="Flashcard. Press to flip.">
+        <div class="fc-in">
+          <div class="fc-face front"><span class="sm" id="fcFrontSys"></span><span class="big" id="fcFront"></span><span class="note">Tap or press Space to flip</span></div>
+          <div class="fc-face back"><span class="sm" id="fcBackSys"></span><span id="fcBack"></span></div>
+        </div>
+      </button>
+      <div class="row">
+        <button class="btn ghost" type="button" id="fcPrev">← Prev</button>
+        <button class="btn" type="button" id="fcKnew">I knew it</button>
+        <button class="btn ghost" type="button" id="fcAgain">Review again</button>
+        <button class="btn ghost" type="button" id="fcShuf">Shuffle</button>
+        <button class="btn ghost" type="button" id="fcShow">Show on model</button>
+      </div>
+      <p class="kbdhint" id="fcCount" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section id="quiz" class="view" aria-labelledby="qz-h" hidden>
+  <div>
+    <p class="eyebrow">Quiz · practical simulator</p>
+    <h2 id="qz-h">Test yourself like the move-type practical</h2>
+    <p class="lede">"Name the pin" is the closest thing to the real practical: a structure is pinned on the specimen and you type its name. "Find it" flips it around: you get a name and click the structure. Multiple choice covers functions, locations and procedure.</p>
+  </div>
+
+  <div class="card" id="qSetup">
+    <div class="qsetup">
+      <fieldset style="border:0;padding:0;margin:0">
+        <legend class="lbl">Formats</legend>
+        <div class="chips" id="qFormats">
+          <button type="button" class="chip" data-fmt="name" aria-pressed="true">Name the pin (3D)</button>
+          <button type="button" class="chip" data-fmt="find" aria-pressed="true">Find it (3D)</button>
+          <button type="button" class="chip" data-fmt="mc" aria-pressed="true">Multiple choice</button>
+        </div>
+      </fieldset>
+      <fieldset style="border:0;padding:0;margin:0">
+        <legend class="lbl">Topics</legend>
+        <div class="chips" id="qSystems"></div>
+      </fieldset>
+      <div>
+        <span class="lbl" id="qn-l">Length</span>
+        <div class="chips" role="group" aria-labelledby="qn-l" id="qCount">
+          <button type="button" class="chip" data-n="10" aria-pressed="false">10</button>
+          <button type="button" class="chip" data-n="25" aria-pressed="true">25</button>
+          <button type="button" class="chip" data-n="50" aria-pressed="false">50</button>
+          <button type="button" class="chip" data-n="999" aria-pressed="false">All</button>
+        </div>
+        <label class="check" style="margin-top:12px"><input type="checkbox" id="qTimer"> Practical timer (30 s per 3D station)</label>
+      </div>
+    </div>
+    <div class="row" style="margin-top:16px">
+      <button class="btn" type="button" id="qStart">Start quiz</button>
+      <span class="note" id="qPoolNote"></span>
+    </div>
+  </div>
+
+  <div id="qRun" class="qrun" hidden>
+    <div id="slot-quiz"></div>
+    <div class="panel qcard" id="qCard"></div>
+  </div>
+
+  <div class="card" id="qDone" hidden></div>
+</section>
+</main>
+<div id="live" class="sr-only" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function(){
+"use strict";
+/* ================= DATA ================= */
+const SYS = {
+  external:    {label:'External anatomy', layer:'ext'},
+  skeletal:    {label:'Skeletal', layer:'skel'},
+  muscular:    {label:'Muscular', layer:'mus'},
+  respiratory: {label:'Respiratory', layer:'org'},
+  digestive:   {label:'Digestive', layer:'org'},
+  circulatory: {label:'Circulatory', layer:'org'},
+  nervous:     {label:'Nervous', layer:'org'},
+  urogenital:  {label:'Urogenital', layer:'org'},
+  methods:     {label:'Directions & procedure', layer:null}
+};
+const ORG_SYS = ['respiratory','digestive','circulatory','nervous','urogenital'];
+const P = {};
+function def(id, system, name, group, info, o){
+  P[id] = Object.assign({id, system, name, group, info, aliases:[], sex:null, extra:false, action:null, meshes:[]}, o||{});
+}
+const layerOf = id => SYS[P[id].system].layer;
+
+/* ---- External ---- */
+def('head','external','head','Body regions','Anterior body region carrying the three sense organs: nostrils, eyes and ears. There is no neck, so the head joins the trunk directly and the toad turns its whole body to look around.');
+def('snout','external','snout','Head','Tip of the head, just in front of the external nares.',{aliases:['tip of the head','rostrum']});
+def('trunk','external','trunk','Body regions','Main body region from behind the head to the vent; it houses the viscera. Adult toads have no neck and no tail.',{aliases:['body']});
+def('nares','external','external nares','Head','Paired nostrils near the snout. Air is drawn in through them during buccal pumping; they close so the rising floor of the mouth can push that air into the lungs.',{aliases:['nostrils','nostril','external naris','nares','naris']});
+def('eye','external','eye','Head','Large, bulging eye set dorsolaterally for a wide field of view. It can be pulled down into the orbit, which also helps push food toward the esophagus when swallowing.',{aliases:['eyes','eyeball']});
+def('upperlid','external','upper eyelid','Head','Thick, immovable fold of skin over the top of the eye.',{aliases:['upper eye lid','upper lid']});
+def('nictitating','external','nictitating membrane','Head','Movable, translucent lower eyelid. It sweeps up over the eye to keep it moist and protected, including underwater.',{aliases:['lower eyelid','nictitans','third eyelid','lower eye lid']});
+def('tympanum','external','tympanic membrane','Head','Circular eardrum lateral to the head, behind the eye. It vibrates with sound and passes the vibration to the middle-ear bone (columella).',{aliases:['eardrum','tympanum','ear drum','tympanic','ear']});
+def('parotoid','external','poison glands','Head','Paired raised mounds posterolateral to the head, also called parotoid glands. They secrete bufotoxins that make toads distasteful or toxic to predators. They are a hallmark of the toad family, Bufonidae.',{aliases:['parotoid glands','parotoid gland','parotid glands','poison gland','paratoid glands']});
+def('hump','external','dorsal hump','Trunk','Noticeable hump on the dorsal trunk. It sits over the joint where the sacral vertebra meets the ilia of the pelvic girdle, so it is often called the sacral hump.',{aliases:['sacral hump','hump','iliosacral hump']});
+def('vent','external','vent','Trunk','Posterior opening of the cloaca: one outlet for feces, urine, and eggs or sperm.',{aliases:['cloacal opening','cloacal aperture','anus']});
+def('throat','external','throat region (male)','Head','Ventral side of the head. In sexually mature males it carries greenish-brown pigmentation, one of the external clues to sex.',{aliases:['throat','throat region','gular region','greenish brown throat'],sex:'m'});
+def('vocalsac','external','vocal sac','Head','Male only. Inflatable sac under the side of the tongue near the angle of the jaw; it amplifies the mating call.',{aliases:['vocal sacs','vocal pouch'],sex:'m'});
+def('upperarm','external','upper arm','Forelimb','First (proximal) segment of the forelimb.',{aliases:['brachium','arm']});
+def('forearm','external','forearm','Forelimb','Middle segment of the forelimb, between upper arm and manus.',{aliases:['antebrachium','lower arm']});
+def('carpus','external','carpus','Forelimb · manus','Wrist; the proximal part of the manus (hand).',{aliases:['wrist']});
+def('metacarpus','external','metacarpus','Forelimb · manus','Palm; the middle part of the manus.',{aliases:['palm']});
+def('digits_f','external','digits (manus)','Forelimb · manus','Fingers of the manus. Toads have four.',{aliases:['digits','fingers','finger','digit']});
+def('nuptial','external','nuptial pad','Forelimb · manus','Swollen, roughened thumb of the breeding male. He uses it to grip the female during amplexus.',{aliases:['nuptial pads','swollen thumb','thumb pad','swollen thumbs'],sex:'m'});
+def('thigh','external','thigh','Hind limb','Proximal segment of the hind limb.',{aliases:['femoral region']});
+def('shank','external','shank','Hind limb','Middle segment of the hind limb, between thigh and pes.',{aliases:['crus','lower leg','leg']});
+def('tarsus','external','tarsus','Hind limb · pes','Ankle; the proximal part of the pes. In anurans it is unusually long.',{aliases:['ankle']});
+def('metatarsus','external','metatarsus','Hind limb · pes','Middle part of the pes (sole of the foot).',{aliases:['sole']});
+def('digits_h','external','digits (pes)','Hind limb · pes','Five webbed toes of the pes.',{aliases:['digits','toes','toe','digit','webbed toes']});
+
+/* ---- Skeletal ---- */
+def('cranium','skeletal','cranium','Skull','Braincase: the narrow box of the skull that encloses the brain. It opens posteriorly at the foramen magnum.',{aliases:['braincase','brain case']});
+def('upperjaw','skeletal','upper jaw','Skull','Arc of bone forming the upper rim of the mouth (premaxilla and maxilla). Frogs carry small teeth here; toads have none.',{aliases:['upper jaws','maxilla','premaxilla','maxillary']});
+def('lowerjaw','skeletal','lower jaw','Skull','Mandible. It hinges near the back of the skull; depressor mandibulae lowers it and temporalis raises it.',{aliases:['mandible','lower jaws','jaw']});
+def('orbit','skeletal','orbit','Skull','Large eye socket. Its floor is largely open, so the eyeball can be pulled down into the roof of the mouth.',{aliases:['eye socket','orbits']});
+def('foramen','skeletal','foramen magnum','Skull','Large opening at the back of the cranium where the spinal cord leaves the braincase. The pithing needle is steered through it.',{aliases:['foramen']});
+def('condyles','skeletal','occipital condyles','Skull','Two rounded knobs beside the foramen magnum that articulate with the atlas. Amphibians and mammals have two; reptiles and birds have one.',{aliases:['occipital condyle','condyles']});
+def('atlas','skeletal','atlas (1st vertebra)','Vertebral column','First vertebra. It articulates with the occipital condyles and has no transverse processes.',{aliases:['atlas','first vertebra','1st vertebra']});
+def('typical','skeletal','typical vertebrae (2nd–8th)','Vertebral column','Vertebrae 2 to 8, each with a centrum, neural arch, neural spine, transverse processes and zygapophyses.',{aliases:['typical vertebrae','typical vertebra','vertebrae','vertebra','trunk vertebrae']});
+def('sacral','skeletal','sacral vertebra (9th)','Vertebral column','Ninth vertebra. Its broad transverse processes articulate with the ilia; this joint forms the dorsal hump.',{aliases:['sacral vertebra','sacrum','9th vertebra','ninth vertebra']});
+def('urostyle','skeletal','urostyle (10th)','Vertebral column','Long rod of fused tail vertebrae lying between the ilia. It anchors muscles of the posterior trunk and hips.',{aliases:['urostyle','10th vertebra','coccyx']});
+def('spine','skeletal','neural spine','Vertebral column','Short dorsal projection on each vertebra; it anchors back muscles.',{aliases:['spinous process','neural spines']});
+def('transverse','skeletal','transverse processes','Vertebral column','Lateral projections of vertebrae 2–8. Toads lack ribs, so these processes anchor trunk muscles; the anterior ones are longest.',{aliases:['transverse process']});
+def('prezyg','skeletal','prezygapophyses','Vertebral column','Articular processes on the anterior end of a vertebra. They overlap the postzygapophyses of the vertebra in front and limit twisting.',{aliases:['prezygapophysis','anterior zygapophyses','zygapophyses']});
+def('postzyg','skeletal','postzygapophyses','Vertebral column','Articular processes on the posterior end of a vertebra. They rest on the prezygapophyses of the vertebra behind.',{aliases:['postzygapophysis','posterior zygapophyses','zygapophyses']});
+def('episternum','skeletal','episternum','Sternum','Most anterior part of the sternum: a cartilaginous disc in front of the clavicles.');
+def('omosternum','skeletal','omosternum','Sternum','Slender rod between the episternum and the pectoral girdle.');
+def('xiphisternum','skeletal','xiphisternum','Sternum','Rod of the sternum posterior to the coracoids.',{aliases:['xiphi sternum','mesosternum']});
+def('xiphoid','skeletal','xiphoid cartilage','Sternum','Broad cartilage plate at the posterior tip of the sternum.',{aliases:['xiphoid','xiphoid process']});
+def('suprascapula','skeletal','suprascapula','Pectoral girdle','Broad, partly cartilaginous dorsal plate of the pectoral girdle that lies over the side of the back.',{aliases:['supra scapula']});
+def('scapula','skeletal','scapula','Pectoral girdle','Short bone between the suprascapula and the shoulder joint.',{aliases:['shoulder blade']});
+def('clavicle','skeletal','clavicle','Pectoral girdle','Slender ventral bar from the shoulder joint forward to the midline; the anterior of the two ventral bars.',{aliases:['collarbone','collar bone']});
+def('coracoid','skeletal','coracoid','Pectoral girdle','Stout ventral bar from the shoulder joint to the midline, posterior to the clavicle.');
+def('glenoid','skeletal','glenoid fossa','Pectoral girdle','Shoulder socket where scapula, clavicle and coracoid meet; it receives the head of the humerus.',{aliases:['glenoid cavity','glenoid','shoulder socket']});
+def('ilium','skeletal','ilium','Pelvic girdle','Long bone running from the sacral transverse process back to the acetabulum; the arms of the V-shaped pelvic girdle.',{aliases:['ilia']});
+def('ischium','skeletal','ischium','Pelvic girdle','Posterior-dorsal part of the pelvic disc behind the acetabulum.',{aliases:['ischia']});
+def('pubis','skeletal','pubis','Pelvic girdle','Ventral part of the pelvic disc, largely cartilage.',{aliases:['pubic bone','pubes']});
+def('acetabulum','skeletal','acetabulum','Pelvic girdle','Hip socket on the side of the pelvic disc, where ilium, ischium and pubis meet; it receives the head of the femur.',{aliases:['hip socket']});
+def('humerus','skeletal','humerus','Forelimb','Upper arm bone; its head fits the glenoid fossa.');
+def('radioulna','skeletal','radio-ulna','Forelimb','Single forearm bone: the radius and ulna fused, with a groove marking the line of fusion.',{aliases:['radioulna','radius ulna','radius and ulna','radio ulna']});
+def('carpals','skeletal','carpals','Forelimb','Small wrist bones in two rows.',{aliases:['carpal','wrist bones']});
+def('metacarpals','skeletal','metacarpals','Forelimb','Palm bones, one per finger.',{aliases:['metacarpal']});
+def('phal_f','skeletal','phalanges (manus)','Forelimb','Finger bones.',{aliases:['phalanges','phalanx','finger bones']});
+def('femur','skeletal','femur','Hind limb','Thigh bone; its head sits in the acetabulum.',{aliases:['thigh bone']});
+def('tibiofibula','skeletal','tibio-fibula','Hind limb','Single shank bone: tibia and fibula fused.',{aliases:['tibiofibula','tibia fibula','tibia and fibula','tibio fibula']});
+def('tarsals','skeletal','tarsals','Hind limb','Ankle bones. Two of them (astragalus and calcaneum) are greatly elongated, adding an extra lever segment for jumping.',{aliases:['tarsal','astragalus','calcaneum','calcaneus','ankle bones']});
+def('metatarsals','skeletal','metatarsals','Hind limb','Bones of the sole, one per toe.',{aliases:['metatarsal']});
+def('phal_h','skeletal','phalanges (pes)','Hind limb','Toe bones.',{aliases:['phalanges','phalanx','toe bones']});
+
+/* ---- Muscular ---- */
+const mus = (id,name,group,action,loc,o) => def(id,'muscular',name,group,loc+' Action: '+action+'.',Object.assign({action},o||{}));
+mus('submental','submental','Floor of the mouth','pushes the sublingual tubercle on the lower jaw','Small transverse muscle across the tip of the lower jaw, ventral side.',{aliases:['submentalis']});
+mus('mylohyoid','mylohyoid','Floor of the mouth','raises the floor of the mouth','Broad thin sheet spanning the floor of the mouth between the halves of the lower jaw. Its contraction drives buccal pumping.',{aliases:['mylohyoideus','intermandibularis']});
+mus('depressor','depressor mandibulae','Lower jaw','lowers the lower jaw','Lateral head, just behind the tympanic membrane.',{aliases:['depressor mandibularis','depressor']});
+mus('temporalis','temporalis','Lower jaw','raises the lower jaw','Dorsal head, behind the eye and in front of the parotoid gland.',{aliases:['temporal','temporal muscle']});
+mus('pect_ant','anterior pectoralis','Pectoral girdle, shoulders and arms','adducts and flexes the arm','Ventral chest, the most anterior part of the pectoralis fan.',{aliases:['pectoralis anterior','anterior pectoral']});
+mus('pect_mid','middle pectoralis','Pectoral girdle, shoulders and arms','adducts and flexes the arm','Ventral chest, the middle part of the pectoralis fan.',{aliases:['pectoralis middle','middle pectoral']});
+mus('pect_post','posterior pectoralis','Pectoral girdle, shoulders and arms','adducts and flexes the arm','Ventral chest, the posterior (abdominal) part of the pectoralis fan.',{aliases:['pectoralis posterior','posterior pectoral','abdominal pectoralis']});
+mus('deltoid','deltoid','Pectoral girdle, shoulders and arms','raises and pulls forward the arms','Over the front of the shoulder, lateral to the pectoralis.',{aliases:['deltoideus']});
+mus('sternoradialis','sterno-radialis','Pectoral girdle, shoulders and arms','draws the arms forward','Anterior ventral chest, running from the sternum toward the radio-ulna.',{aliases:['sternoradialis','sterno radialis']});
+mus('rectus_abd','rectus abdominis','Abdominal wall','constricts the abdomen','Paired long bands either side of the midventral line (linea alba), from chest to pelvis.',{aliases:['rectus abdominus','rectus']});
+mus('ext_oblique','external oblique','Abdominal wall','constricts the abdomen','Flank of the abdomen, lateral to the rectus abdominis.',{aliases:['obliquus externus','external obliques','oblique']});
+mus('vastus_int','vastus internus','Thigh (ventral)','straightens the leg','Ventral thigh, most anterior strip.',{aliases:['vastus medialis']});
+mus('add_longus','adductor longus','Thigh (ventral)','adducts the thigh','Ventral thigh, narrow strip just posterior to the vastus internus.');
+mus('sartorius','sartorius','Thigh (ventral)','flexes the thigh and leg','Ventral thigh, thin strap running diagonally down the middle.');
+mus('add_magnus','adductor magnus','Thigh (ventral)','adducts the thigh','Ventral thigh, broad muscle posterior to the sartorius.');
+mus('gracilis_maj','gracilis major','Thigh (ventral)','assists in flexing and rotating the thigh','Ventral thigh, wide strip toward the posterior edge.',{aliases:['gracilis']});
+mus('gracilis_min','gracilis minor','Thigh (ventral and dorsal)','assists in adduction and leg flexion','Thin strip along the posterior edge of the thigh, visible from both the ventral and dorsal sides.',{aliases:['gracilis']});
+mus('rect_fem','rectus femoris anticus','Thigh (dorsal)','straightens the leg','Dorsal thigh, most anterior strip.',{aliases:['rectus femoris','rectus anticus femoris']});
+mus('vastus_ext','vastus externus','Thigh (dorsal)','straightens the leg','Dorsal thigh, posterior to the rectus femoris anticus.',{aliases:['vastus lateralis']});
+mus('iliofib','iliofibularis','Thigh (dorsal)','extends and adducts the thigh; flexes the shank','Dorsal thigh, narrow muscle in the middle.',{aliases:['biceps femoris','ilio fibularis']});
+mus('semimem','semimembranosus','Thigh (dorsal)','adducts the thigh; flexes the shank','Dorsal thigh, broad muscle toward the posterior edge.',{aliases:['semi membranosus']});
+mus('gastroc','gastrocnemius','Shank','extends the foot and flexes the shank','Large bulging muscle on the posterior-ventral shank; its tendon (Achilles) runs to the foot.',{aliases:['calf muscle','gastrocnemeus']});
+mus('peroneus','peroneus','Shank','draws the shank against the thigh and extends the foot','Lateral-dorsal side of the shank.',{aliases:['fibularis','peroneous']});
+
+/* ---- Respiratory ---- */
+def('glottis','respiratory','glottis','Respiratory system','Slit in the floor of the pharynx behind the tongue, opening into the larynx and lungs. It opens as the floor of the mouth rises and pushes air in.');
+def('lungs','respiratory','lungs','Respiratory system','Paired thin-walled, elastic sacs lying dorsolaterally in the anterior body cavity. They are filled by buccal pumping (positive pressure), not by a diaphragm. Skin and mouth lining also exchange gas.',{aliases:['lung']});
+
+/* ---- Digestive ---- */
+def('tongue','digestive','tongue','Digestive system','Muscular, sticky tongue attached at the front of the lower jaw with its free end pointing backward, so it flips forward to catch prey.');
+def('esophagus','digestive','esophagus','Digestive system','Short, wide tube from the pharynx to the stomach.',{aliases:['oesophagus','gullet']});
+def('stomach','digestive','stomach','Digestive system','J-shaped sac on the toad\'s left side. Starts protein digestion with acid and pepsin and ends at the pyloric sphincter.');
+def('duodenum','digestive','duodenum','Digestive system','First part of the small intestine, running forward from the stomach. Bile and pancreatic juice enter here through the common bile duct.',{aliases:['small intestine']});
+def('ileum','digestive','ileum','Digestive system','Long, coiled part of the small intestine held in the mesentery; the main site of absorption. Not to be confused with the ilium, a hip bone.',{aliases:['small intestine']});
+def('pancreas','digestive','pancreas','Digestive system','Pale, irregular gland in the mesentery between stomach and duodenum. It secretes digestive enzymes and the hormones insulin and glucagon.');
+def('liver','digestive','liver','Digestive system','Largest organ: three-lobed and reddish-brown, just posterior to the heart. It makes bile, stores glycogen and processes absorbed nutrients.',{aliases:['liver lobes']});
+def('gallbladder','digestive','gall bladder','Digestive system','Small greenish sac between the liver lobes that stores bile.',{aliases:['gallbladder','gall-bladder']});
+def('largeint','digestive','large intestine','Digestive system','Short, wide tube after the ileum (often called the rectum). It absorbs water and holds feces before they pass into the cloaca.',{aliases:['rectum','colon','large intestines']});
+def('cloaca','digestive','cloaca','Digestive system','Common chamber that receives the large intestine, the urinary (Wolffian) ducts and the oviducts. It opens to the outside through the vent.');
+
+/* ---- Circulatory ---- */
+def('atria','circulatory','atrium','Heart','Two thin-walled anterior chambers. The right atrium receives deoxygenated blood from the sinus venosus; the left receives oxygenated blood from the lungs.',{aliases:['atria','auricle','auricles','right atrium','left atrium','atriums']});
+def('ventricle','circulatory','ventricle','Heart','Single thick, muscular, cone-shaped chamber that pumps blood into the conus arteriosus. Its spongy inner wall keeps the two incoming streams from mixing completely.');
+def('conus','circulatory','conus arteriosus','Heart','Muscular tube leaving the ventral side of the ventricle. Its spiral valve directs blood into the right arches.',{aliases:['conus','bulbus arteriosus']});
+def('truncus','circulatory','truncus arteriosus','Heart','Short trunk where the outflow divides into right and left branches, each giving off the three arterial arches.',{aliases:['truncus']});
+def('sinus','circulatory','sinus venosus','Heart','Thin-walled triangular sac on the dorsal side of the heart. It collects blood from the venae cavae and drains into the right atrium, and it sets the heartbeat.',{aliases:['sinus']});
+def('carotid','circulatory','common carotid artery','Major arteries','Most anterior of the three arches; carries blood to the head and brain.',{aliases:['carotid artery','carotid','carotid arch','common carotid']});
+def('systemic','circulatory','systemic artery','Major arteries','Middle arch. It curves dorsally around the esophagus and joins its partner to form the dorsal aorta.',{aliases:['systemic arch','aortic arch','systemic arteries']});
+def('pulmocut','circulatory','pulmo-cutaneous artery','Major arteries','Most posterior arch. It splits into a pulmonary branch to the lung and a cutaneous branch to the skin, the toad\'s two gas-exchange surfaces.',{aliases:['pulmocutaneous artery','pulmocutaneous arch','pulmo cutaneous artery','pulmocutaneous']});
+def('aorta','circulatory','dorsal aorta','Major arteries','Main trunk artery formed where the two systemic arches unite. It runs posteriorly just ventral to the vertebral column, supplying the gut, kidneys and legs.',{aliases:['aorta','descending aorta']});
+def('renalA','circulatory','renal arteries','Major arteries','Small branches of the dorsal aorta to the kidneys.',{aliases:['renal artery']});
+def('precaval','circulatory','precaval vein','Major veins','Paired anterior venae cavae. They drain the head, forelimbs and skin into the sinus venosus.',{aliases:['anterior vena cava','precaval veins','precava','anterior venae cavae','superior vena cava']});
+def('postcaval','circulatory','postcaval vein','Major veins','Single posterior vena cava. It runs forward from between the kidneys, through the liver, to the sinus venosus.',{aliases:['posterior vena cava','postcava','inferior vena cava']});
+def('abdominal','circulatory','anterior abdominal vein','Major veins','Runs along the midventral abdominal wall to the liver, carrying blood from the hind limbs and bladder region. Incisions are made off-centre to avoid it.',{aliases:['ventral abdominal vein','abdominal vein']});
+def('renalV','circulatory','renal veins','Major veins','Drain the kidneys into the postcaval vein.',{aliases:['renal vein']});
+
+/* ---- Nervous ---- */
+def('olf_lobes','nervous','olfactory lobes','Brain','Most anterior part of the brain, fused at the midline; first stop for smell signals.',{aliases:['olfactory lobe','olfactory bulbs','olfactory bulb']});
+def('olf_nerves','nervous','olfactory nerves','Brain','Cranial nerve I. They carry smell signals from the nasal lining to the olfactory lobes.',{aliases:['olfactory nerve','cranial nerve i','cn i']});
+def('optic_nerves','nervous','optic nerves','Brain','Cranial nerve II. They run from each eye to the ventral diencephalon and cross at the optic chiasma.',{aliases:['optic nerve','cranial nerve ii','cn ii']});
+def('telen','nervous','telencephalon (cerebral hemispheres)','Brain','Paired, elongated hemispheres of the forebrain behind the olfactory lobes. In amphibians they deal mostly with smell and simple behaviour.',{aliases:['telencephalon','cerebral hemispheres','cerebral hemisphere','cerebrum']});
+def('dien','nervous','diencephalon','Brain','Short region between the hemispheres and the optic lobes. It includes the thalamus and hypothalamus; the pineal attaches above and the pituitary below.',{aliases:['thalamus','interbrain']});
+def('mesen','nervous','mesencephalon (optic lobes)','Brain','Pair of large, rounded lobes of the midbrain and the main visual centre. They are large because toads hunt by sight.',{aliases:['mesencephalon','optic lobes','optic lobe','midbrain']});
+def('meten','nervous','metencephalon (cerebellum)','Brain','Thin transverse band just behind the optic lobes. It coordinates posture and movement and is small in amphibians.',{aliases:['metencephalon','cerebellum']});
+def('myelen','nervous','myelencephalon (medulla oblongata)','Brain','Most posterior part of the brain, tapering into the spinal cord. It controls breathing, heart rate and other vital reflexes.',{aliases:['myelencephalon','medulla oblongata','medulla']});
+def('spinal','nervous','spinal cord','Brain','Not on the checklist; shown for context. It continues from the medulla through the neural canal and is what spinal pithing destroys.',{extra:true});
+
+/* ---- Urogenital ---- */
+def('kidney','urogenital','kidney','Urogenital system','Paired, elongated, dark red organs against the dorsal body wall, outside the peritoneum. They filter blood to make urine.',{aliases:['kidneys','mesonephros']});
+def('bladder','urogenital','urinary bladder','Urogenital system','Thin-walled, two-lobed sac on the ventral side of the cloaca. It stores urine, and the toad can reabsorb water from it.',{aliases:['bladder']});
+def('testis','urogenital','testis','Urogenital system','Male. Paired oval, yellowish organs on the ventral surface of the kidneys; they make sperm. Male toads also carry a small Bidder\'s organ at the front of each testis.',{aliases:['testes','testicle','testicles'],sex:'m'});
+def('ovary','urogenital','ovary','Urogenital system','Female. Paired, lobed masses packed with dark-and-pale eggs. In a breeding female they fill much of the body cavity.',{aliases:['ovaries'],sex:'f'});
+
+/* ================= LEARN CONTENT ================= */
+const LEARN = [
+ {sys:'external', mode:'ext', title:'B · External anatomy', html:`
+  <p><strong>What:</strong> the body is a head, a trunk, two forelimbs and two hind limbs, with no neck and no tail. The head holds the three sense organs: external nares, eyes and tympanic membranes.</p>
+  <p><strong>How:</strong> each limb has three segments. Forelimb: upper arm, forearm, manus (carpus, metacarpus, four digits). Hind limb: thigh, shank, pes (tarsus, metatarsus, five webbed digits). The vent at the posterior end is the single outlet for feces, urine and gametes.</p>
+  <p><strong>Why:</strong> a rigid, neckless body with long folding hind legs is a jumping machine; the long tarsus adds one more lever. Bulging dorsal eyes and nares let a half-submerged toad see and breathe. The parotoid glands are chemical defence, which is why a toad can afford to move slowly in the open.</p>
+  <h4>Telling males from females</h4>
+  <ul><li>Males are smaller.</li><li>Males have a greenish-brown throat and a vocal sac to amplify the call.</li><li>Males have swollen thumbs (nuptial pads) for gripping the female's back in <em>amplexus</em>.</li></ul>
+  <p class="note">Switch the specimen to Female in Explore: the throat pigment, vocal sac and nuptial pads disappear.</p>`,
+  cy:[['Name the three segments of the pes.','Tarsus, metatarsus and digits.'],['What is a nuptial pad for?','Gripping the female during amplexus; it is a male trait.']]},
+ {sys:'skeletal', mode:'skel', title:'C · Skeletal system', html:`
+  <p><strong>What:</strong> a short, stiff skeleton: a wide, flat skull, only nine true vertebrae plus a urostyle, no ribs, and limb bones fused in pairs.</p>
+  <p><strong>How:</strong> the skull (cranium, jaws, large orbits) meets the <em>atlas</em> through two <em>occipital condyles</em> beside the <em>foramen magnum</em>. Vertebrae 2–8 are typical; the 9th (sacral) has broad transverse processes that meet the ilia; the urostyle (10th) is fused tail vertebrae. The pectoral girdle runs dorsal to ventral as suprascapula → scapula → glenoid fossa → clavicle (front) and coracoid (back), braced by the sternum: episternum, omosternum, xiphisternum, xiphoid cartilage. The pelvic girdle is a V of two long ilia ending in a disc (ischium behind, pubis below) with the acetabulum on each side.</p>
+  <p><strong>Why:</strong> landing from a jump hits the forelimbs and chest first, so the sternum and girdle act like a shock-absorbing frame. The short, fused column and long ilia turn the hind-limb thrust into forward motion; the iliosacral joint is the dorsal hump you see on the skin. Fused radio-ulna and tibio-fibula trade rotation for strength, and two elongated tarsals add a lever segment.</p>`,
+  cy:[['Which vertebra has no transverse processes?','The atlas (1st).'],['Which three bones meet at the acetabulum?','Ilium, ischium and pubis.']]},
+ {sys:'muscular', mode:'mus', title:'D · Muscular system', html:`
+  <p><strong>What:</strong> skeletal muscles seen after skinning: floor of mouth, jaw, chest and shoulder, abdominal wall, thigh (ventral and dorsal) and shank.</p>
+  <p><strong>How:</strong> muscles work in opposing pairs. Depressor mandibulae lowers the jaw and temporalis raises it. The pectoralis parts adduct and flex the arm; the deltoid raises it and pulls it forward. Rectus abdominis and external oblique squeeze the abdomen. On the thigh, the anterior strips straighten the leg (vastus internus, rectus femoris anticus, vastus externus), the adductors pull it in, and the posterior ones flex the shank (iliofibularis, semimembranosus). Gastrocnemius extends the foot.</p>
+  <p><strong>Why:</strong> the jump is an extension of hip, knee and ankle at once, which is why the leg extensors and gastrocnemius are so large. The mylohyoid matters for breathing: raising the floor of the mouth with the nares closed is what pushes air into the lungs.</p>
+  <h4>Order on the thigh (anterior → posterior)</h4>
+  <ul><li>Ventral: vastus internus, adductor longus, sartorius, adductor magnus, gracilis major, gracilis minor.</li><li>Dorsal: rectus femoris anticus, vastus externus, iliofibularis, semimembranosus, gracilis minor.</li></ul>`,
+  cy:[['Which muscle raises the floor of the mouth, and why does that matter?','Mylohyoid; it drives buccal pumping of air into the lungs.'],['Which two thigh muscles both adduct the thigh and flex the shank?','Iliofibularis (also extends the thigh) and semimembranosus.']]},
+ {sys:'respiratory', mode:'org', title:'E1 · Respiratory system', html:`
+  <p><strong>What:</strong> a glottis in the floor of the pharynx leading to two simple, sac-like lungs.</p>
+  <p><strong>How:</strong> toads have no diaphragm. They lower the floor of the mouth to draw air in through the nares, close the nares, then raise the floor (mylohyoid) so the air is forced through the open glottis into the lungs. This is positive-pressure or buccal pumping.</p>
+  <p><strong>Why:</strong> the lungs are only part of the story. Thin, moist skin and the mouth lining also exchange gas, which is why the third aortic arch is the <em>pulmo-cutaneous</em> artery: it feeds both lung and skin.</p>`,
+  cy:[['Where is the glottis?','In the floor of the pharynx, behind the tongue.'],['What replaces a diaphragm?','The buccal pump: the floor of the mouth raised by the mylohyoid.']]},
+ {sys:'digestive', mode:'org', title:'E2 · Digestive system', html:`
+  <p><strong>What:</strong> tongue → esophagus → stomach → small intestine (duodenum, ileum) → large intestine → cloaca → vent, with the liver, gall bladder and pancreas as accessory glands.</p>
+  <p><strong>How:</strong> the tongue is attached at the front and flips out. The short esophagus opens into a J-shaped stomach on the toad's left. The duodenum loops forward, with the pancreas in the mesentery between it and the stomach; bile from the gall bladder and pancreatic juice enter the duodenum together. The long ileum coils posteriorly and absorbs, then the wide large intestine leads to the cloaca.</p>
+  <p><strong>Why:</strong> a carnivore swallowing whole insects needs strong acid digestion and a short gut. The big three-lobed liver sits ventral and anterior, right behind the heart, which is why it is the first organ you see after cutting the girdle.</p>
+  <p class="note">The ileum (gut) and the ilium (hip bone) sound alike. The gut one has an "e" like "eating".</p>`,
+  cy:[['Which organ lies between the stomach and duodenum?','The pancreas.'],['What three things pass out through the cloaca?','Feces, urine, and eggs or sperm.']]},
+ {sys:'circulatory', mode:'org', title:'E3 · Circulatory system', html:`
+  <p><strong>What:</strong> a three-chambered heart (two atria, one ventricle) with a sinus venosus behind and a conus arteriosus and truncus arteriosus in front.</p>
+  <p><strong>How:</strong> veins → sinus venosus → right atrium; lung veins → left atrium; both atria → single ventricle → conus arteriosus → truncus arteriosus, which splits into three arches on each side: the <em>common carotid</em> (head), the <em>systemic</em> (curves dorsally to join its partner as the dorsal aorta, which gives off the renal arteries) and the <em>pulmo-cutaneous</em> (lungs and skin). Blood returns through the paired precaval veins, the single postcaval vein (from the kidneys, via renal veins) and the anterior abdominal vein (along the belly to the liver).</p>
+  <p><strong>Why:</strong> one ventricle could mix blood badly, but the spongy ventricle wall and the spiral valve in the conus keep the streams largely apart, sending oxygen-poor blood mainly to the pulmo-cutaneous arch. The anterior abdominal vein on the midventral wall is the reason incisions go slightly off-centre.</p>`,
+  cy:[['Which arch becomes the dorsal aorta?','The systemic arches, which unite dorsally.'],['Where does the sinus venosus drain?','Into the right atrium.']]},
+ {sys:'nervous', mode:'org', title:'E4 · Nervous system', html:`
+  <p><strong>What:</strong> the brain, read anterior to posterior: olfactory lobes → telencephalon (cerebral hemispheres) → diencephalon → mesencephalon (optic lobes) → metencephalon (cerebellum) → myelencephalon (medulla oblongata), with olfactory and optic nerves.</p>
+  <p><strong>How:</strong> olfactory nerves (I) run from the nose to the olfactory lobes; optic nerves (II) run from the eyes to the underside of the diencephalon. The medulla narrows into the spinal cord, which leaves the skull through the foramen magnum.</p>
+  <p><strong>Why:</strong> brain proportions track lifestyle. The optic lobes are the largest bulges because toads hunt moving prey by sight; the cerebellum is just a thin band because a toad's movements are simple compared with a bird's or mammal's. Pithing works because destroying the brain and then the cord removes both sensation and reflexes.</p>`,
+  cy:[['Which part of the brain is the "optic lobes"?','The mesencephalon (midbrain).'],['Which brain part controls breathing and heart rate?','The myelencephalon (medulla oblongata).']]},
+ {sys:'urogenital', mode:'org', title:'E5 · Urogenital system', html:`
+  <p><strong>What:</strong> paired kidneys, a ventral bilobed urinary bladder, and testes (male) or ovaries (female).</p>
+  <p><strong>How:</strong> the kidneys lie against the dorsal body wall on either side of the dorsal aorta and postcaval vein. Urine runs through ducts into the dorsal cloaca and backs up into the bladder on its ventral side. Testes are small, oval and yellowish, attached to the ventral kidneys; ovaries are large and full of eggs.</p>
+  <p><strong>Why:</strong> "urogenital" because the two systems share ducts and the cloaca. The bladder doubles as a water store, useful for a toad that lives away from water. Male bufonids also carry a Bidder's organ, a small ovary-like body at the front of each testis.</p>`,
+  cy:[['Are the kidneys dorsal or ventral to the intestines?','Dorsal, against the body wall.'],['Where does the urinary bladder attach?','To the ventral side of the cloaca.']]}
+];
+
+const MNEMONICS = [
+ {t:'Brain, anterior → posterior', p:'"Old Tall Dogs Must Meet Mice"', k:'Olfactory lobes · Telencephalon · Diencephalon · Mesencephalon · Metencephalon · Myelencephalon'},
+ {t:'The three arches, front → back', p:'"Cars Stop at Pedestrian crossings"', k:'Carotid (head) · Systemic (body, forms dorsal aorta) · Pulmo-cutaneous (lungs + skin)'},
+ {t:'Blood path through the heart', p:'"Silly Ants Visit Cane Toads"', k:'Sinus venosus → Atria → Ventricle → Conus arteriosus → Truncus arteriosus'},
+ {t:'Digestive tract in order', p:'"Toads Eat Spicy Dragonflies In Lumpia Casings"', k:'Tongue · Esophagus · Stomach · Duodenum · Ileum · Large intestine · Cloaca'},
+ {t:'Sternum, anterior → posterior', p:'"Every Old Xylophone eXplodes"', k:'Episternum · Omosternum · Xiphisternum · Xiphoid cartilage'},
+ {t:'Pectoral girdle, top → bottom', p:'"Super Scapula Grabs Coffee & Cake"', k:'Suprascapula · Scapula · Glenoid fossa · Clavicle (front bar) & Coracoid (back bar); "Cl" before "Co", front before back'},
+ {t:'Pelvic girdle', p:'"I Sit Politely"', k:'Ilium (long arm in front) · Ischium (posterior, what you sit on) · Pubis (points ventral)'},
+ {t:'Vertebral column', p:'"1 holds the head, 9 holds the hips, 10 is the tail that isn\'t"', k:'Atlas 1 · typical 2–8 · sacral 9 · urostyle 10'},
+ {t:'Ventral thigh, front → back', p:'"Very Angry Snakes Attack Green Geckos"', k:'Vastus internus · Adductor longus · Sartorius · Adductor magnus · Gracilis major · Gracilis minor'},
+ {t:'Dorsal thigh, front → back', p:'"Really Very Itchy Skin, Gross"', k:'Rectus femoris anticus · Vastus externus · Iliofibularis · Semimembranosus · Gracilis minor'},
+ {t:'Jaw muscles', p:'"Depressor drops, Temporalis tightens"', k:'Depressor mandibulae lowers the jaw; temporalis raises it'},
+ {t:'Male toad checklist', p:'"Small, Singing, Thumbs-up"', k:'Smaller body · greenish throat with vocal sac · swollen thumbs (nuptial pads) for amplexus'},
+ {t:'Limb segments', p:'"Up-Fore-Hand, Thigh-Shank-Foot"', k:'Upper arm · forearm · manus (carpus, metacarpus, digits) / thigh · shank · pes (tarsus, metatarsus, digits)'},
+ {t:'Double pithing', p:'"Brain first, then the spine"', k:'Cranial: through the foramen magnum, scoop the brain. Spinal: turn the needle caudally down the neural canal; legs stiffen, then go limp'}
+];
+
+const VERSUS = [
+ ['ilium','Hip bone; the long arm of the pelvic girdle.','ileum','Coiled small intestine. "e" for eating.'],
+ ['carpus','External region of the wrist (skin layer).','carpals','The wrist bones inside it (skeleton layer).'],
+ ['tarsus','External ankle region of the pes.','tarsals','The elongated ankle bones inside it.'],
+ ['atrium','Thin-walled receiving chambers, two of them, on the anterior heart.','sinus venosus','Dorsal sac behind the heart that feeds the right atrium.'],
+ ['conus arteriosus','Muscular tube from the ventricle; holds the spiral valve.','truncus arteriosus','Where the outflow forks into the arches.'],
+ ['precaval vein','Paired; drains the head and arms (anterior).','postcaval vein','Single; drains kidneys and passes the liver (posterior).'],
+ ['olfactory lobes','Smell; the very front of the brain.','optic lobes','Vision; the mesencephalon, behind the diencephalon.'],
+ ['clavicle','Anterior ventral bar of the pectoral girdle.','coracoid','Posterior ventral bar, stouter.'],
+ ['upper eyelid','Immovable, thick, on top.','nictitating membrane','Movable, translucent, lower.'],
+ ['glottis','Slit to the lungs, in the floor of the pharynx.','esophagus','Tube to the stomach, behind the glottis.'],
+ ['rectus abdominis','Medial bands beside the midline.','external oblique','Lateral flank sheet. Both constrict the abdomen.'],
+ ['prezygapophyses','Anterior articular processes of a vertebra.','postzygapophyses','Posterior articular processes.']
+];
+
+/* hand-written multiple choice: [system, question, correct, wrong1, wrong2, wrong3, explanation] */
+const MCQ = [
+ ['methods','A plane that divides the body into equal right and left halves is the…','median plane','transverse plane','horizontal (frontal) plane','dorso-ventral axis','The median plane runs head to tail down the midline. Sagittal planes are the median plane or any plane parallel to it.'],
+ ['methods','Which plane divides the toad into dorsal and ventral parts?','horizontal (frontal) plane','median plane','transverse plane','sagittal plane','The horizontal or frontal plane lies at right angles to both the median and transverse planes.'],
+ ['methods','A cross section that separates cranial from caudal segments lies in the…','transverse plane','sagittal plane','frontal plane','median plane','A transverse plane is perpendicular to the median plane and separates anterior from posterior.'],
+ ['methods','A sagittal plane is…','the median plane or any plane parallel to it','any plane perpendicular to the median plane','the plane separating dorsal from ventral','the longitudinal axis','Every median plane is sagittal, but a sagittal plane need not be in the midline.'],
+ ['methods','With the toad lying ventral side up, the kidneys are ___ to the intestines.','dorsal','ventral','anterior','distal','Anatomical terms follow the animal, not the pan. The kidneys sit against the dorsal body wall.'],
+ ['methods','The digits are ___ to the carpus.','distal','proximal','medial','cranial','Distal means farther from the body centre, toward the extremities.'],
+ ['methods','Which term means "toward the tail"?','caudal','cephalic','cranial','proximal','Caudal and posterior both mean toward the tail end; cephalic and cranial mean toward the head.'],
+ ['methods','In double pithing, the needle first enters…','the crease between the skull and the atlas, at 90°','the vent, pointing anteriorly','the tympanic membrane','the midventral chest','You find the crease by tilting the head dorsally, pierce it at 90°, then tip the needle cranially toward the foramen magnum.'],
+ ['methods','What tells you spinal pithing has succeeded?','The legs extend and stiffen, then the toad goes flaccid','The heart stops immediately','The nictitating membrane closes','The vocal sac inflates','As the needle reaches the caudal neural canal the legs fully extend; afterwards the toad should be flaccid and unresponsive.'],
+ ['methods','Why is the ventral incision made slightly off-centre?','To avoid the anterior abdominal vein on the midventral wall','To avoid the dorsal aorta','To cut through the sternum more easily','To reach the kidneys first','The anterior abdominal vein runs along the midline of the belly to the liver.'],
+ ['methods','For a freshly pithed toad, the leg skin is best removed by…','pulling it off from the thigh downward like a stocking','cutting the ventral skin and unwrapping it','boiling the leg first','cutting around each toe first','The manual reserves the cut-and-unwrap method for preserved toads.'],
+ ['external','Which external feature is found only in breeding males?','swollen thumbs (nuptial pads)','tympanic membranes','parotoid glands','a nictitating membrane','Males also tend to be smaller and have a greenish-brown throat and vocal sac.'],
+ ['external','The poison glands of the toad are located…','posterolateral to the head','on the ventral throat','beside the vent','on the shank','These parotoid glands secrete bufotoxins.'],
+ ['external','The vent serves as an outlet for…','feces, urine, and eggs or sperm','feces only','urine only','air from the lungs','It is the opening of the cloaca, a shared chamber.'],
+ ['external','The manus consists of the…','carpus, metacarpus and digits','tarsus, metatarsus and digits','upper arm, forearm and digits','humerus, radio-ulna and carpals','Pes has the tarsus, metatarsus and digits instead.'],
+ ['external','Which body regions are absent in an adult toad?','neck and tail','head and trunk','forelimbs','hind limbs','The head joins the trunk directly and the tadpole tail is resorbed at metamorphosis.'],
+ ['external','The movable, translucent lower eyelid is the…','nictitating membrane','upper eyelid','tympanic membrane','cornea','The upper eyelid is thick and immovable.'],
+ ['external','Males use their nuptial pads to…','grasp the female during amplexus','amplify the mating call','secrete toxins','dig burrows','Amplexus is the mating grip in which the male mounts the female\'s back.'],
+ ['skeletal','Which vertebra articulates with the ilia?','the 9th (sacral) vertebra','the atlas','the 8th typical vertebra','the urostyle','Its broad transverse processes meet the ilia, forming the dorsal hump.'],
+ ['skeletal','The atlas articulates with the…','occipital condyles','glenoid fossa','acetabulum','urostyle','The two condyles sit beside the foramen magnum at the back of the skull.'],
+ ['skeletal','Which is the most anterior element of the sternum?','episternum','xiphoid cartilage','xiphisternum','omosternum','Order front to back: episternum, omosternum, (girdle), xiphisternum, xiphoid cartilage.'],
+ ['skeletal','The head of the femur fits into the…','acetabulum','glenoid fossa','foramen magnum','orbit','The glenoid fossa is the shoulder socket for the humerus.'],
+ ['skeletal','The single forearm bone of the toad is the…','radio-ulna','tibio-fibula','humerus','metacarpus','Radius and ulna are fused, as are tibia and fibula in the shank.'],
+ ['skeletal','What is the urostyle?','the fused tail vertebrae, counted as the 10th','the sacral vertebra','a part of the pectoral girdle','the last phalanx of the pes','It lies between the ilia and supports posterior trunk muscles.'],
+ ['skeletal','Elongated tarsals help the toad by…','adding an extra lever segment for jumping','protecting the kidneys','supporting the vocal sac','storing calcium for eggs','A longer limb with more segments extends over a longer distance during takeoff.'],
+ ['skeletal','Which structures does the toad trunk lack that many other vertebrates have?','ribs','vertebrae','transverse processes','a sternum','Transverse processes take over the role of anchoring trunk muscles.'],
+ ['muscular','Which two muscles act as an opposing pair on the lower jaw?','depressor mandibulae and temporalis','mylohyoid and submental','deltoid and sterno-radialis','sartorius and gracilis minor','Depressor mandibulae lowers the jaw; temporalis raises it.'],
+ ['muscular','Why is the mylohyoid important beyond swallowing?','It raises the floor of the mouth, pushing air into the lungs','It closes the nostrils','It inflates the stomach','It moves the eyes','Toads have no diaphragm; they breathe with a buccal pump.'],
+ ['muscular','Which thigh muscle is visible from both the ventral and dorsal sides?','gracilis minor','sartorius','vastus internus','rectus femoris anticus','It runs along the posterior edge of the thigh, so it shows up in both lists.'],
+ ['muscular','Which muscle extends the foot and flexes the shank?','gastrocnemius','peroneus','sartorius','vastus externus','The gastrocnemius is the large calf muscle; peroneus draws the shank against the thigh and extends the foot.'],
+ ['respiratory','How does a toad force air into its lungs?','by raising the floor of the mouth with the nares closed','by contracting a diaphragm','by expanding its ribs','by swallowing through the esophagus','This positive-pressure buccal pump replaces a diaphragm.'],
+ ['respiratory','Where is the glottis?','in the floor of the pharynx, behind the tongue','at the tip of the snout','inside the stomach','behind the tympanic membrane','It opens into the larynx and the lungs.'],
+ ['respiratory','Besides the lungs, the toad exchanges gas across…','the skin and mouth lining','the liver','the urinary bladder','the parotoid glands','Hence the pulmo-cutaneous artery supplies both lung and skin.'],
+ ['digestive','Which organ lies in the mesentery between the stomach and the duodenum?','pancreas','gall bladder','spleen','kidney','Its duct joins the bile duct to empty into the duodenum.'],
+ ['digestive','On which side of the toad does the stomach lie?','the toad\'s left','the toad\'s right','dorsal to the kidneys','inside the cloaca','The esophagus curves to the left into a J-shaped stomach.'],
+ ['digestive','The gall bladder stores bile produced by the…','liver','pancreas','stomach','duodenum','It sits between the liver lobes.'],
+ ['digestive','Which correctly orders the path of food?','esophagus → stomach → duodenum → ileum → large intestine → cloaca','stomach → esophagus → ileum → duodenum → cloaca','esophagus → duodenum → stomach → ileum → cloaca','stomach → duodenum → large intestine → ileum → cloaca','Duodenum is the first part of the small intestine, the ileum the coiled part after it.'],
+ ['digestive','The toad\'s tongue is attached…','at the front of the lower jaw, free end pointing back','at the back of the mouth, free end pointing forward','to the roof of the mouth','to the glottis','The front attachment lets it flip forward onto prey.'],
+ ['circulatory','How many chambers does the toad heart have?','three: two atria and one ventricle','two: one atrium and one ventricle','four: two atria and two ventricles','five, counting the sinus venosus and conus','The checklist says "atrium", but there are right and left atria.'],
+ ['circulatory','The sinus venosus receives blood from the venae cavae and empties into the…','right atrium','left atrium','ventricle','conus arteriosus','It sits on the dorsal side of the heart.'],
+ ['circulatory','Which arch carries blood to the lungs and skin?','pulmo-cutaneous artery','common carotid artery','systemic artery','renal artery','It is the most posterior of the three arches.'],
+ ['circulatory','The dorsal aorta is formed by the union of the…','two systemic arches','two carotid arteries','pulmo-cutaneous arches','precaval veins','They curve dorsally around the esophagus and join.'],
+ ['circulatory','Where is the spiral valve?','in the conus arteriosus','in the sinus venosus','in the left atrium','in the dorsal aorta','It helps steer oxygen-poor blood to the pulmo-cutaneous arch.'],
+ ['circulatory','Which vein is paired and drains the head and forelimbs?','precaval vein','postcaval vein','anterior abdominal vein','renal vein','The postcaval is single and posterior.'],
+ ['nervous','Which is the correct anterior-to-posterior order of the brain?','telencephalon, diencephalon, mesencephalon, metencephalon, myelencephalon','diencephalon, telencephalon, metencephalon, mesencephalon, myelencephalon','mesencephalon, telencephalon, diencephalon, myelencephalon, metencephalon','telencephalon, mesencephalon, diencephalon, myelencephalon, metencephalon','"Tall Dogs Must Meet Mice." Olfactory lobes sit in front of all of them.'],
+ ['nervous','The optic lobes belong to the…','mesencephalon','diencephalon','metencephalon','telencephalon','The midbrain is the main visual centre in amphibians.'],
+ ['nervous','The cerebellum is part of the…','metencephalon','myelencephalon','mesencephalon','diencephalon','It is a thin transverse band right behind the optic lobes.'],
+ ['nervous','Breathing and heart-rate reflexes are centred in the…','medulla oblongata','cerebral hemispheres','olfactory lobes','optic lobes','The medulla (myelencephalon) tapers into the spinal cord.'],
+ ['nervous','The optic nerves connect the eyes to the…','ventral diencephalon','olfactory lobes','cerebellum','medulla oblongata','They cross at the optic chiasma under the diencephalon.'],
+ ['urogenital','Where are the testes attached?','to the ventral surface of the kidneys','to the dorsal wall of the stomach','inside the urinary bladder','beside the heart','They are small, oval and yellowish.'],
+ ['urogenital','The urinary bladder lies…','on the ventral side of the cloaca','dorsal to the kidneys','between the liver lobes','inside the pelvic girdle disc','It is thin-walled and two-lobed.'],
+ ['urogenital','The kidneys lie…','against the dorsal body wall, outside the peritoneum','on the ventral body wall','inside the liver','in the throat region','They flank the dorsal aorta and postcaval vein.']
+];
+
+/* ================= 3D MODEL ================= */
+/* Axes: +z anterior (snout), +y dorsal, +x = toad's LEFT, -x = toad's right. Units ≈ cm-ish, schematic. */
+const L = {};          // layer groups
+const CTX = {};        // context (non-clickable) groups
+let PLANES = null;
+function buildModel(){
+  const T = THREE;
+  ['ext','mus','org','skel'].forEach(k => L[k] = new T.Group());
+  CTX.flesh = new T.Group(); CTX.ghost = new T.Group();
+  const V=(x,y,z)=>new T.Vector3(x,y,z), UP=V(0,1,0), ZA=V(0,0,1);
+  const rad=d=>d*Math.PI/180;
+  const M=(v,s)=>V(v.x*s,v.y,v.z);
+  const both=f=>{f(1);f(-1)};
+  let seed=7; const rnd=()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+  const SPH = new T.SphereGeometry(1,40,28);
+  const std=(color,o)=>new T.MeshStandardMaterial(Object.assign({color,roughness:.62,metalness:0},o||{}));
+  const mesh=(g,color,o)=>new T.Mesh(g,std(color,o));
+  const aim=(m,from,dir)=>{m.quaternion.setFromUnitVectors(from,dir.clone().normalize());return m};
+  const ell=(c,r,color,o)=>{const m=mesh(SPH,color,o);m.position.copy(c);m.scale.set(r[0],r[1],r[2]);return m};
+  const cap=(a,b,r,color,o)=>{const d=b.clone().sub(a);const m=mesh(new T.CapsuleGeometry(r,Math.max(d.length(),.001),5,12),color,o);m.position.copy(a).add(b).multiplyScalar(.5);return aim(m,UP,d)};
+  const tube=(pts,r,color,o)=>mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts),Math.max(28,pts.length*18),r,10,false),color,o);
+  const torus=(c,R,r,n,color,o)=>{const m=mesh(new T.TorusGeometry(R,r,10,36),color,o);m.position.copy(c);return aim(m,ZA,n)};
+  const disc=(c,R,n,color,o)=>{const m=mesh(new T.CircleGeometry(R,36),color,Object.assign({side:T.DoubleSide},o));m.position.copy(c);return aim(m,ZA,n)};
+  const box=(c,s,color,o)=>{const m=mesh(new T.BoxGeometry(s[0],s[1],s[2]),color,o);m.position.copy(c);return m};
+  const reg=(pid,m)=>{const p=P[pid];if(!p)throw new Error('Unknown part '+pid);m.userData.pid=pid;p.meshes.push(m);L[layerOf(pid)].add(m);return m};
+  const regB=(pid,f)=>both(s=>reg(pid,f(s)));
+  const rotY=(v,a)=>V(v.x*Math.cos(a)+v.z*Math.sin(a),v.y,-v.x*Math.sin(a)+v.z*Math.cos(a));
+
+  /* ---- textures ---- */
+  function wartCanvas(){
+    const c=document.createElement('canvas');c.width=c.height=512;const x=c.getContext('2d');
+    x.fillStyle='#ffffff';x.fillRect(0,0,512,512);
+    for(let i=0;i<1100;i++){const r=2+rnd()*10,px=rnd()*512,py=rnd()*512,d=rnd()<.4;
+      const g=x.createRadialGradient(px,py,0,px,py,r);
+      g.addColorStop(0,d?'rgba(45,30,12,.55)':'rgba(255,244,214,.55)');g.addColorStop(1,'rgba(255,255,255,0)');
+      x.fillStyle=g;x.beginPath();x.arc(px,py,r,0,Math.PI*2);x.fill();}
+    return c;
+  }
+  function eggCanvas(){
+    const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
+    x.fillStyle='#3b3530';x.fillRect(0,0,256,256);
+    for(let i=0;i<700;i++){const px=rnd()*256,py=rnd()*256,r=3+rnd()*2.5;
+      x.fillStyle='#e9e1c9';x.beginPath();x.arc(px,py,r,0,Math.PI*2);x.fill();
+      x.fillStyle='#17130f';x.beginPath();x.arc(px,py-r*.25,r*.75,Math.PI,0);x.fill();}
+    return c;
+  }
+  const wart=new T.CanvasTexture(wartCanvas());wart.wrapS=wart.wrapT=T.RepeatWrapping;wart.repeat.set(3,2);
+  const eggs=new T.CanvasTexture(eggCanvas());eggs.wrapS=eggs.wrapT=T.RepeatWrapping;eggs.repeat.set(3,3);
+
+  const DORSAL='#5b4d29', VENTRAL='#d6c79a', LIMB='#615330';
+  const skinGeo=()=>{const g=new T.SphereGeometry(1,72,44);const pos=g.attributes.position,col=[];
+    const cd=new T.Color(DORSAL),cv=new T.Color(VENTRAL),c=new T.Color();
+    for(let i=0;i<pos.count;i++){const y=pos.getY(i);const t=T.MathUtils.smoothstep(y,-.5,.05);c.copy(cv).lerp(cd,t);col.push(c.r,c.g,c.b);}
+    g.setAttribute('color',new T.Float32BufferAttribute(col,3));return g};
+  const skinMat=()=>std('#ffffff',{vertexColors:true,map:wart,bumpMap:wart,bumpScale:.035,roughness:.78});
+  const limbMat=()=>std(LIMB,{map:wart,bumpMap:wart,bumpScale:.03,roughness:.78});
+
+  /* ---- shared body plan ---- */
+  const TR={c:V(0,0,0),r:[1.1,.62,1.6]};
+  const HD={c:V(0,.08,1.7),r:[1.0,.45,.85]};
+  const LIMBS={
+    upperarm:[V(.95,-.15,.85),V(1.55,-.3,1.15),.17], forearm:[V(1.55,-.3,1.15),V(2.05,-.38,1.55),.14],
+    carpus:[V(2.05,-.38,1.55),V(2.2,-.4,1.72),.12], metacarpus:[V(2.2,-.4,1.72),V(2.38,-.42,1.94),.115],
+    thigh:[V(.45,-.18,-1.5),V(1.5,-.3,-2.1),.27], shank:[V(1.5,-.3,-2.1),V(2.2,-.35,-3.0),.2],
+    tarsus:[V(2.2,-.35,-3.0),V(2.4,-.36,-3.6),.12], metatarsus:[V(2.4,-.36,-3.6),V(2.55,-.37,-4.05),.12]
+  };
+  const handDir=LIMBS.metacarpus[1].clone().sub(LIMBS.forearm[1]).setY(0).normalize();
+  const footDir=LIMBS.metatarsus[1].clone().sub(LIMBS.shank[1]).setY(0).normalize();
+  const FDIG=[[-.55,.30],[-.18,.38],[.18,.42],[.52,.34]];           // [angle, length] digit 0 = thumb (medial)
+  const HDIG=[[.55,.36],[.28,.48],[0,.62],[-.27,.78],[-.55,.55]];  // digit 0 = hallux (medial)
+  const fingerSegs=()=>FDIG.map(([a,l])=>{const d=rotY(handDir,a);const s=LIMBS.metacarpus[1].clone();return [s,s.clone().addScaledVector(d,l).add(V(0,-.02,0))]});
+  const toeSegs=()=>HDIG.map(([a,l])=>{const d=rotY(footDir,a);const s=LIMBS.metatarsus[1].clone();return [s,s.clone().addScaledVector(d,l).add(V(0,-.02,0))]});
+  const onEll=(b,phi,th,out)=>{const f=rad(phi),t=rad(th);const u=V(-Math.cos(f)*Math.sin(t),-Math.sin(f)*Math.sin(t),Math.cos(t));
+    const p=V(u.x*b.r[0],u.y*b.r[1],u.z*b.r[2]).add(b.c);const n=V(u.x/b.r[0],u.y/b.r[1],u.z/b.r[2]).normalize();return {p:p.addScaledVector(n,out||0),n}};
+
+  function bodyForms(target,matFn,pidFor){
+    const put=(kind,m)=>{m.material=matFn(kind);const pid=pidFor&&pidFor(kind);if(pid)reg(pid,m);else target.add(m);};
+    const tr=new T.Mesh(pidFor?skinGeo():SPH);tr.position.copy(TR.c);tr.scale.set(...TR.r);put('trunk',tr);
+    const hd=new T.Mesh(pidFor?skinGeo():SPH);hd.position.copy(HD.c);hd.scale.set(...HD.r);put('head',hd);
+    both(s=>{
+      Object.entries(LIMBS).forEach(([k,[a,b,r]])=>{const m=cap(M(a,s),M(b,s),r,'#fff');put(k,m);});
+      fingerSegs().forEach(([a,b])=>put('digits_f',cap(M(a,s),M(b,s),.045,'#fff')));
+      toeSegs().forEach(([a,b])=>put('digits_h',cap(M(a,s),M(b,s),.045,'#fff')));
+      const ts=toeSegs(); for(let i=0;i<4;i++){ // webbing
+        const a=ts[i][0],b1=ts[i][1],b2=ts[i+1][1];const g=new T.BufferGeometry();
+        const p1=a.clone().lerp(b1,.75),p2=a.clone().lerp(b2,.75);
+        const pts=[M(a,s),M(p1,s),M(p2,s)];g.setFromPoints(pts);g.computeVertexNormals();
+        const m=new T.Mesh(g);m.material=matFn('web');put('digits_h',m);
+        m.material.side=T.DoubleSide;
+      }
+    });
+  }
+
+  /* ================= EXTERNAL / SKIN ================= */
+  bodyForms(L.ext,k=>(k==='trunk'||k==='head')?skinMat():limbMat(),k=>k==='web'?'digits_h':k);
+  reg('snout',ell(V(0,.1,2.38),[.36,.25,.2],DORSAL,{map:wart,bumpMap:wart,bumpScale:.03,roughness:.78}));
+  regB('nares',s=>ell(V(.16*s,.3,2.46),[.045,.03,.04],'#15110c'));
+  const EYE=V(.5,.42,1.9);
+  regB('eye',s=>ell(M(EYE,s),[.2,.2,.2],'#b88a2a',{roughness:.2}));
+  regB('eye',s=>{const n=M(V(.45,.55,.6),s).normalize();const m=ell(M(EYE,s).addScaledVector(n,.185),[.09,.04,.035],'#0b0906',{roughness:.15});return aim(m,ZA,n)});
+  regB('upperlid',s=>ell(M(V(.5,.57,1.88),s),[.23,.075,.23],DORSAL,{map:wart,bumpMap:wart,bumpScale:.03,roughness:.8}));
+  regB('nictitating',s=>ell(M(V(.52,.36,1.94),s),[.205,.14,.205],'#cfe3ea',{transparent:true,opacity:.55,roughness:.15}));
+  regB('tympanum',s=>{const e=onEll(HD,200,103,.012);return disc(M(e.p,s),.15,M(e.n,s),'#8b7a4a',{roughness:.4})});
+  regB('parotoid',s=>{const m=ell(M(V(.56,.47,1.12),s),[.21,.11,.37],'#8c7b42',{map:wart,bumpMap:wart,bumpScale:.06,roughness:.8});m.rotation.y=-.35*s;return m});
+  reg('hump',ell(V(0,.59,-.72),[.4,.1,.32],'#7b6c3a',{map:wart,bumpMap:wart,bumpScale:.04,roughness:.8}));
+  reg('vent',ell(V(0,.03,-1.6),[.08,.06,.025],'#1d140e'));
+  (function(){const b={c:HD.c,r:[HD.r[0]*1.012,HD.r[1]*1.012,HD.r[2]*1.012]};
+    const g=new T.SphereGeometry(1,28,18,rad(50),rad(80),rad(24),rad(58));g.rotateX(Math.PI/2);
+    const m=new T.Mesh(g,std('#55562a',{side:T.DoubleSide,roughness:.8}));m.position.copy(b.c);m.scale.set(...b.r);reg('throat',m);})();
+  regB('vocalsac',s=>{const e=onEll(HD,145,112,.02);return ell(M(e.p,s),[.14,.1,.14],'#6a6534',{roughness:.5})});
+  regB('nuptial',s=>{const [a,b]=fingerSegs()[0];return ell(M(a.clone().lerp(b,.3),s),[.07,.055,.09],'#33240f',{roughness:.95})});
+
+  /* ================= SKELETON ================= */
+  const BONE='#e7dfc6', CART='#b9d3d6';
+  reg('cranium',ell(V(0,.25,1.6),[.21,.14,.68],BONE));
+  regB('cranium',s=>cap(M(V(.18,.22,1.12),s),M(V(.82,.03,1.25),s),.04,BONE));   // squamosal/pterygoid strut
+  regB('cranium',s=>cap(M(V(.12,.27,2.12),s),M(V(.4,.12,2.35),s),.035,BONE));   // nasal strut
+  const jaw=(y,k)=>[V(.86*k,y,1.22),V(.82*k,y,1.75),V(.58*k,y,2.27),V(.25*k,y,2.5),V(0,y,2.56),V(-.25*k,y,2.5),V(-.58*k,y,2.27),V(-.82*k,y,1.75),V(-.86*k,y,1.22)];
+  reg('upperjaw',tube(jaw(.04,1),.045,BONE));
+  reg('lowerjaw',tube(jaw(-.12,.97),.05,BONE));
+  regB('orbit',s=>torus(M(V(.47,.3,1.87),s),.21,.028,M(V(.25,1,.15),s),'#d9cfb2'));
+  reg('foramen',torus(V(0,.26,.92),.065,.02,V(0,0,1),'#cbbf9e'));
+  regB('condyles',s=>ell(M(V(.1,.23,.9),s),[.045,.045,.04],BONE));
+  const VY=.32;
+  const vert=(pid,z,trans,tl)=>{reg(pid,cap(V(0,VY,z+.06),V(0,VY,z-.06),.065,BONE));
+    reg('spine',box(V(0,VY+.1,z),[.035,.09,.08],BONE));
+    if(trans) both(s=>reg(trans,cap(V(.06*s,VY,z),V(tl*s,VY-.02,z+(trans==='transverse'&&tl>.4?.04:0)),.025,BONE)));
+  };
+  vert('atlas',.8,null,0);
+  const tz=[.62,.45,.28,.11,-.06,-.23,-.40], tlen=[.46,.5,.42,.32,.3,.28,.27];
+  tz.forEach((z,i)=>vert('typical',z,'transverse',tlen[i]));
+  reg('sacral',cap(V(0,VY,-.52),V(0,VY,-.64),.065,BONE)); reg('spine',box(V(0,VY+.1,-.58),[.035,.08,.08],BONE));
+  regB('sacral',s=>cap(V(.06*s,VY,-.58),V(.5*s,VY-.02,-.76),.045,BONE));
+  [.8,...tz,-.58].forEach((z,i)=>both(s=>{
+    if(i>0) reg('prezyg',ell(V(.065*s,VY+.06,z+.065),[.03,.025,.03],'#d8cda8'));
+    reg('postzyg',ell(V(.065*s,VY+.06,z-.065),[.03,.025,.03],'#c7b98f'));
+  }));
+  reg('urostyle',cap(V(0,VY,-.72),V(0,VY-.03,-1.6),.05,BONE));
+  regB('ilium',s=>cap(M(V(.5,VY-.03,-.78),s),M(V(.2,-.02,-1.64),s),.045,BONE));
+  regB('acetabulum',s=>torus(M(V(.2,-.05,-1.72),s),.075,.022,M(V(1,0,-.1),s),'#c8bb95'));
+  reg('ischium',ell(V(0,.07,-1.82),[.15,.1,.08],BONE));
+  reg('pubis',ell(V(0,-.13,-1.74),[.13,.07,.07],CART));
+  // pectoral girdle + sternum
+  const GL=V(.92,-.15,.86);
+  regB('glenoid',s=>torus(M(GL,s),.06,.02,M(V(1,0,.3),s),'#c8bb95'));
+  regB('scapula',s=>cap(M(V(.9,-.07,.85),s),M(V(.83,.24,.8),s),.06,BONE));
+  regB('suprascapula',s=>{const m=ell(M(V(.68,.43,.76),s),[.3,.045,.22],CART);m.rotation.z=.55*s;return m});
+  regB('clavicle',s=>cap(M(V(.86,-.2,.93),s),M(V(.06,-.45,1.05),s),.034,BONE));
+  regB('coracoid',s=>cap(M(V(.86,-.23,.8),s),M(V(.06,-.47,.72),s),.05,BONE));
+  reg('episternum',ell(V(0,-.46,1.4),[.11,.025,.11],CART));
+  reg('omosternum',cap(V(0,-.46,1.09),V(0,-.46,1.3),.03,BONE));
+  reg('xiphisternum',cap(V(0,-.48,.66),V(0,-.49,.4),.035,BONE));
+  reg('xiphoid',ell(V(0,-.5,.25),[.19,.025,.14],CART));
+  // limbs
+  regB('humerus',s=>cap(M(V(.95,-.17,.88),s),M(V(1.53,-.3,1.14),s),.045,BONE));
+  regB('radioulna',s=>cap(M(V(1.57,-.31,1.17),s),M(V(2.03,-.38,1.53),s),.042,BONE));
+  both(s=>[[0,0],[.05,.04],[-.05,.03],[.02,.1],[.07,.12],[-.04,.11]].forEach(([dx,dz])=>reg('carpals',ell(M(V(2.1+dx,-.39,1.6+dz),s),[.035,.03,.035],BONE))));
+  both(s=>FDIG.forEach(([a])=>{const d=rotY(handDir,a);const st=V(2.2,-.4,1.72).addScaledVector(rotY(handDir,a*.5),.03);
+    const en=LIMBS.metacarpus[1].clone().addScaledVector(d,.02);reg('metacarpals',cap(M(st,s),M(en,s),.022,BONE));}));
+  both(s=>fingerSegs().forEach(([a,b])=>{const m1=a.clone().lerp(b,.5);reg('phal_f',cap(M(a.clone().lerp(b,.08),s),M(m1,s),.02,BONE));reg('phal_f',cap(M(m1.clone().lerp(b,.08),s),M(b,s),.018,BONE));}));
+  regB('femur',s=>cap(M(V(.28,-.06,-1.74),s),M(V(1.48,-.3,-2.1),s),.046,BONE));
+  regB('tibiofibula',s=>cap(M(V(1.53,-.3,-2.13),s),M(V(2.18,-.35,-2.98),s),.045,BONE));
+  both(s=>{const a=V(2.22,-.35,-3.03),b=V(2.38,-.36,-3.58);const side=V(-footDir.z,0,footDir.x).multiplyScalar(.035);
+    reg('tarsals',cap(M(a.clone().add(side),s),M(b.clone().add(side),s),.026,BONE));
+    reg('tarsals',cap(M(a.clone().sub(side),s),M(b.clone().sub(side),s),.026,BONE));});
+  both(s=>HDIG.forEach(([ang])=>{const d=rotY(footDir,ang);const st=V(2.41,-.36,-3.63);const en=LIMBS.metatarsus[1].clone().addScaledVector(d,.02);
+    reg('metatarsals',cap(M(st.clone().addScaledVector(d,.02),s),M(en,s),.022,BONE));}));
+  both(s=>toeSegs().forEach(([a,b])=>{const m1=a.clone().lerp(b,.38),m2=a.clone().lerp(b,.72);
+    reg('phal_h',cap(M(a.clone().lerp(b,.06),s),M(m1,s),.02,BONE));reg('phal_h',cap(M(m1.clone().lerp(b,.04),s),M(m2,s),.019,BONE));reg('phal_h',cap(M(m2.clone().lerp(b,.05),s),M(b,s),.017,BONE));}));
+
+  /* ================= MUSCLES ================= */
+  bodyForms(CTX.flesh,()=>std('#b98f7e',{roughness:.75}),null);
+  const MC=['#b23d36','#cc5c4b','#a3303a','#d57060','#9b3a2e','#c44b56','#b9584a','#d77d6c','#a8443f'];
+  let mi=0; const mcol=()=>MC[(mi++)%MC.length];
+  const shell=(b,pA,pB,tA,tB,color,s,k)=>{s=s||1;k=k||1.022;if(s<0){const a=180-pB,bb=180-pA;pA=a;pB=bb;}
+    const g=new T.SphereGeometry(1,30,18,rad(pA),rad(pB-pA),rad(tA),rad(tB-tA));g.rotateX(Math.PI/2);
+    const m=new T.Mesh(g,std(color,{side:T.DoubleSide,roughness:.5}));m.position.copy(b.c);m.scale.set(b.r[0]*k,b.r[1]*k,b.r[2]*k);return m};
+  const sleeve=(a,b,R,tA,tB,f0,f1,color,s)=>{if(s<0){const x=360-tB,y=360-tA;tA=x;tB=y;}
+    const Y=b.clone().sub(a);const len=Y.length();Y.normalize();
+    const Zd=UP.clone().addScaledVector(Y,-Y.dot(UP)).normalize();const X=new T.Vector3().crossVectors(Y,Zd);
+    const g=new T.CylinderGeometry(R,R,len*(f1-f0),28,1,true,rad(tA),rad(tB-tA));
+    const m=new T.Mesh(g,std(color,{side:T.DoubleSide,roughness:.5}));
+    m.position.copy(a).addScaledVector(b.clone().sub(a),(f0+f1)/2);
+    m.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(X,Y,Zd));return m};
+  const shellB=(pid,b,pA,pB,tA,tB)=>{const c=mcol();both(s=>reg(pid,shell(b,pA,pB,tA,tB,c,s)))};
+  // head
+  reg('submental',shell(HD,68,112,14,28,mcol()));
+  reg('mylohyoid',shell(HD,46,134,30,80,mcol()));
+  shellB('depressor',HD,172,214,108,138);
+  shellB('temporalis',HD,226,262,92,124);
+  // chest & abdomen
+  shellB('sternoradialis',TR,93,122,26,44);
+  shellB('pect_ant',TR,122,150,32,52);
+  shellB('pect_mid',TR,95,138,50,61);
+  shellB('pect_post',TR,100,142,61,71);
+  shellB('deltoid',TR,152,188,36,56);
+  shellB('rectus_abd',TR,92,119,73,152);
+  shellB('ext_oblique',TR,124,190,76,148);
+  // thigh & shank (theta: 0 dorsal, 90 anterior, 180 ventral, 270 posterior — mirrored on right)
+  const [ta,tb,tr]=LIMBS.thigh, R=tr*1.03;
+  const sl=(pid,t0,t1,f0,f1,limb)=>{const c=mcol();const [a,b,r]=LIMBS[limb||'thigh'];both(s=>reg(pid,sleeve(M(a,s),M(b,s),r*1.04,t0,t1,f0,f1,c,s)))};
+  sl('vastus_int',100,134,.12,.95); sl('add_longus',134,156,.12,.9); sl('sartorius',156,180,.06,.96);
+  sl('add_magnus',180,206,.08,.92); sl('gracilis_maj',206,236,.1,.95); sl('gracilis_min',236,282,.08,.97);
+  sl('rect_fem',48,100,.08,.96); sl('vastus_ext',14,48,.1,.95); sl('iliofib',-18,14,.1,.95); sl('semimem',-80,-18,.1,.94);
+  sl('gastroc',125,255,.05,.9,'shank'); sl('peroneus',-60,45,.08,.95,'shank');
+
+  /* ================= ORGANS ================= */
+  bodyForms(CTX.ghost,()=>std('#cfd9c6',{transparent:true,opacity:.09,depthWrite:false,roughness:.3}),null);
+  // respiratory
+  reg('glottis',ell(V(0,-.08,1.45),[.055,.02,.1],'#7d2f2f'));
+  regB('lungs',s=>ell(M(V(.42,.12,.38),s),[.26,.2,.5],'#e6a3a3',{transparent:true,opacity:.88,roughness:.4}));
+  // digestive
+  reg('tongue',ell(V(0,-.13,2.05),[.3,.045,.38],'#d47a7c',{roughness:.35}));
+  reg('esophagus',tube([V(0,-.09,1.36),V(.07,-.08,1.12),V(.15,-.07,.86)],.07,'#cf9a8a'));
+  reg('stomach',tube([V(.15,-.07,.86),V(.38,-.12,.52),V(.5,-.15,.12),V(.42,-.18,-.24),V(.16,-.2,-.36)],.15,'#d79c8d'));
+  reg('duodenum',tube([V(.16,-.2,-.36),V(-.08,-.23,-.3),V(-.28,-.21,-.08),V(-.32,-.18,.14)],.075,'#dcaa9b'));
+  const coil=[V(-.32,-.18,.14),V(-.42,-.2,-.12)];
+  for(let i=0;i<44;i++){const a=i*.62,rr=.13+.24*(.5+.5*Math.sin(i*.41));coil.push(V(Math.cos(a)*rr*1.25,-.21+.07*Math.sin(i*.93),-.66+Math.sin(a)*rr*.95));}
+  coil.push(V(.05,-.16,-1.02),V(0,-.12,-1.12));
+  reg('ileum',tube(coil,.062,'#e2b3a2'));
+  reg('largeint',tube([V(0,-.12,-1.12),V(.02,-.09,-1.33),V(0,-.03,-1.53)],.13,'#c98d7c'));
+  reg('cloaca',ell(V(0,-.01,-1.62),[.1,.09,.08],'#ad6e5c'));
+  reg('pancreas',(()=>{const m=ell(V(.04,-.21,-.12),[.22,.04,.1],'#eadbb0');m.rotation.y=.35;return m})());
+  reg('liver',ell(V(-.38,-.25,.5),[.38,.13,.31],'#7b3425',{roughness:.4}));
+  reg('liver',ell(V(.34,-.27,.6),[.32,.12,.26],'#7b3425',{roughness:.4}));
+  reg('liver',ell(V(.44,-.25,.22),[.29,.12,.28],'#7b3425',{roughness:.4}));
+  reg('gallbladder',ell(V(-.05,-.24,.43),[.075,.07,.075],'#4e7d2a',{roughness:.3}));
+  // circulatory
+  reg('ventricle',(()=>{const m=ell(V(0,-.29,.8),[.19,.17,.23],'#a42b2b',{roughness:.4});return m})());
+  regB('atria',s=>ell(M(V(.12,-.22,1.0),s),[.13,.12,.12],'#c44a4a',{roughness:.4}));
+  reg('sinus',ell(V(0,-.08,.93),[.16,.05,.1],'#6c3d70'));
+  reg('conus',tube([V(-.07,-.42,.88),V(-.06,-.44,1.03),V(0,-.41,1.17)],.045,'#b33a3a'));
+  regB('truncus',s=>tube([V(0,-.41,1.17),M(V(.14,-.38,1.24),s),M(V(.25,-.34,1.27),s)],.042,'#c85050'));
+  const A='#d6403c', VN='#3d63c9';
+  regB('carotid',s=>tube([M(V(.25,-.33,1.3),s),M(V(.3,-.26,1.46),s),M(V(.32,-.1,1.74),s),M(V(.27,0,2.0),s)],.025,A));
+  regB('systemic',s=>tube([M(V(.26,-.34,1.26),s),M(V(.41,-.23,1.17),s),M(V(.38,.04,1.0),s),M(V(.2,.18,.76),s),M(V(.03,.2,.56),s)],.03,A));
+  regB('pulmocut',s=>tube([M(V(.26,-.35,1.23),s),M(V(.43,-.3,1.18),s),M(V(.5,-.15,1.05),s),M(V(.46,0,.76),s),M(V(.42,.1,.48),s)],.022,A));
+  regB('pulmocut',s=>tube([M(V(.5,-.15,1.05),s),M(V(.74,-.05,1.12),s),M(V(.96,.1,1.04),s)],.02,A));
+  reg('aorta',tube([V(0,.2,.56),V(0,.2,0),V(0,.2,-.8),V(0,.18,-1.38)],.045,A));
+  [-.6,-.85,-1.08].forEach(z=>regB('renalA',s=>tube([V(0,.2,z),V(.09*s,.17,z),V(.17*s,.12,z)],.016,A)));
+  regB('precaval',s=>tube([M(V(.78,-.12,1.2),s),M(V(.46,-.18,1.12),s),M(V(.16,-.13,1.0),s),M(V(.06,-.09,.95),s)],.035,VN));
+  reg('postcaval',tube([V(0,.07,-1.08),V(0,.04,-.45),V(-.06,-.08,.28),V(0,-.09,.86)],.045,VN));
+  const abd=[];for(let z=-1.25;z<=.1;z+=.15){abd.push(V(0,-.62*Math.sqrt(Math.max(.02,1-(z/1.6)**2))+.07,z));}abd.push(V(0,-.42,.3));
+  reg('abdominal',tube(abd,.03,VN));
+  [-.7,-.98].forEach(z=>regB('renalV',s=>tube([V(.17*s,.09,z),V(.08*s,.08,z),V(0,.07,z)],.018,VN)));
+  // nervous
+  reg('olf_lobes',ell(V(0,.27,2.07),[.09,.06,.09],'#f0d4c2'));
+  regB('olf_nerves',s=>tube([V(.03*s,.27,2.14),V(.12*s,.28,2.32),V(.17*s,.29,2.44)],.013,'#f2e19a'));
+  regB('telen',s=>ell(V(.066*s,.28,1.84),[.07,.07,.17],'#f0d2c0'));
+  reg('dien',ell(V(0,.26,1.62),[.075,.06,.07],'#e8c4b0'));
+  regB('mesen',s=>ell(V(.085*s,.29,1.49),[.08,.075,.08],'#f3d8c8'));
+  reg('meten',ell(V(0,.29,1.38),[.1,.025,.03],'#e0b6a2'));
+  reg('myelen',(()=>{const m=cap(V(0,.26,1.32),V(0,.27,1.1),.06,'#ebcab6');return m})());
+  reg('spinal',tube([V(0,.27,1.08),V(0,.31,.85),V(0,VY,.2),V(0,VY,-.7)],.028,'#efe2c4'));
+  regB('optic_nerves',s=>tube([V(.02*s,.2,1.66),V(.24*s,.25,1.8),V(.42*s,.36,1.88)],.016,'#f2e19a'));
+  // urogenital
+  regB('kidney',s=>ell(V(.2*s,.1,-.85),[.1,.055,.33],'#6b1f1f',{roughness:.45}));
+  regB('bladder',s=>ell(V(.13*s,-.18,-1.38),[.13,.11,.15],'#e2dbb6',{transparent:true,opacity:.75,roughness:.3}));
+  regB('testis',s=>ell(V(.19*s,.02,-.66),[.07,.05,.13],'#e8c75f',{roughness:.4}));
+  both(s=>[[V(.42,-.12,-.35),[.33,.25,.5]],[V(.3,-.18,-.82),[.26,.2,.32]],[V(.38,-.05,.1),[.25,.18,.25]]].forEach(([c,r])=>reg('ovary',ell(M(c,s),r,'#ffffff',{map:eggs,roughness:.6}))));
+
+  /* ---- planes ---- */
+  PLANES=new T.Group();
+  const pl=(w,h,color,rot,pos)=>{const m=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({color,transparent:true,opacity:.16,side:T.DoubleSide,depthWrite:false}));m.rotation.set(...rot);m.position.copy(pos);PLANES.add(m);
+    const e=new T.LineSegments(new T.EdgesGeometry(m.geometry),new T.LineBasicMaterial({color,transparent:true,opacity:.55}));e.rotation.copy(m.rotation);e.position.copy(pos);PLANES.add(e);};
+  pl(8,3,'#6fc3e8',[0,Math.PI/2,0],V(0,0,-.9));        // median
+  pl(6,8,'#e8c36f',[-Math.PI/2,0,0],V(0,0,-.9));       // frontal
+  pl(6,3,'#d78bd0',[0,0,0],V(0,0,0));                  // transverse
+  PLANES.visible=false;
+
+  /* ---- unique materials so highlighting is per part ---- */
+  Object.values(P).forEach(p=>p.meshes.forEach(m=>{m.material=m.material.clone();m.userData.baseEm=m.material.emissive.clone();}));
+  return {L,CTX,PLANES};
+}
+
+/* ================= APP ================= */
+const $=(s,r)=>(r||document).querySelector(s), $$=(s,r)=>[...(r||document).querySelectorAll(s)];
+const store={get(k,d){try{const v=localStorage.getItem('toad3d:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+             set(k,v){try{localStorage.setItem('toad3d:'+k,JSON.stringify(v))}catch(e){}}};
+const live=$('#live'); const say=t=>{live.textContent='';setTimeout(()=>{live.textContent=t},40)};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const cap1=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const quizParts=()=>Object.values(P).filter(p=>!p.extra);
+
+const view={mode:'ext',sys:new Set(ORG_SYS),sex:'m',dirs:true,planes:false,sel:null,hover:null};
+let route='explore';
+const MODE_LABEL={ext:'Skin · external regions',mus:'Muscles · skin removed',org:'Organs',skel:'Skeleton'};
+
+/* ---------- 3D runtime ---------- */
+let R=null; // renderer bundle
+function init3D(){
+  const msg=$('#stageMsg');
+  if(typeof THREE==='undefined'||!THREE.OrbitControls){msg.textContent='The 3D library could not load. The Learn, Remember and multiple-choice quiz still work.';return false;}
+  try{
+    const cv=$('#cv');
+    const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:false});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+    const scene=new THREE.Scene();
+    const camera=new THREE.PerspectiveCamera(38,1,.05,100);
+    camera.position.set(5.6,4.6,4.4);
+    const controls=new THREE.OrbitControls(camera,cv);
+    controls.enableDamping=true;controls.dampingFactor=.09;controls.target.set(0,0,-.6);controls.minDistance=1.2;controls.maxDistance=18;
+    scene.add(new THREE.HemisphereLight(0xf4f1e8,0x3a3f44,.7));
+    const d1=new THREE.DirectionalLight(0xffffff,.62);d1.position.set(3,6,4);scene.add(d1);
+    const d2=new THREE.DirectionalLight(0xdfe8ff,.32);d2.position.set(-4,-5,-2);scene.add(d2);
+    const d3=new THREE.DirectionalLight(0xfff2e0,.18);d3.position.set(0,-2,6);scene.add(d3);
+    buildModel();
+    Object.values(L).forEach(g=>scene.add(g));scene.add(CTX.flesh,CTX.ghost,PLANES);
+    R={renderer,scene,camera,controls,ray:new THREE.Raycaster(),ptr:new THREE.Vector2(),tween:null,pick:[],pins:[]};
+    controls.addEventListener('start',()=>{R.tween=null});
+    msg.hidden=true;
+    setupPointer(cv);
+    new ResizeObserver(resize).observe($('#stage'));resize();
+    setStageBg();
+    requestAnimationFrame(loop);
+    return true;
+  }catch(e){console.error(e);msg.textContent='3D view unavailable on this device ('+e.message+'). The rest of the site still works.';return false;}
+}
+function setStageBg(){if(!R)return;const c=getComputedStyle(document.documentElement).getPropertyValue('--stage').trim()||'#15191b';R.renderer.setClearColor(c);}
+function resize(){if(!R)return;const st=$('#stage');const w=st.clientWidth,h=st.clientHeight;if(!w||!h)return;R.renderer.setSize(w,h,false);R.camera.aspect=w/h;R.camera.updateProjectionMatrix();}
+
+const DIRS=[['Anterior',[0,.15,3.05]],['Posterior',[0,.15,-4.75]],['Dorsal',[0,1.35,0]],['Ventral',[0,-1.3,0]],['Left (toad’s)',[3.15,0,.2]],['Right (toad’s)',[-3.15,0,.2]]];
+const PLN=[['Median plane',[0,1.45,-3.6]],['Horizontal plane',[2.9,0,-4.7]],['Transverse plane',[-2.6,1.4,0]]];
+function buildDirLabels(){const box=$('#dirLabels');box.innerHTML='';
+  DIRS.forEach(([t])=>{const s=document.createElement('span');s.textContent=t;box.appendChild(s)});
+  PLN.forEach(([t])=>{const s=document.createElement('span');s.className='plane';s.textContent=t;box.appendChild(s)});}
+const _v=()=>new THREE.Vector3();
+function project(p){const v=_v().set(p[0],p[1],p[2]).project(R.camera);const st=$('#stage');return {x:(v.x*.5+.5)*st.clientWidth,y:(-v.y*.5+.5)*st.clientHeight,front:v.z<1};}
+let pulse=0;
+function loop(t){
+  requestAnimationFrame(loop);
+  if(!R)return;
+  if(R.tween){const tw=R.tween;R.camera.position.lerp(tw.pos,.14);R.controls.target.lerp(tw.target,.14);
+    if(R.camera.position.distanceTo(tw.pos)<.01&&R.controls.target.distanceTo(tw.target)<.01)R.tween=null;}
+  R.controls.update();
+  // labels
+  const spans=$$('#dirLabels span');
+  const camDir=R.camera.position.clone().sub(R.controls.target).normalize();
+  DIRS.forEach(([,p],i)=>{const s=spans[i];if(!s)return;const q=project(p);const along=Math.abs(_v().set(p[0],p[1],p[2]).normalize().dot(camDir))>.82;s.style.display=view.dirs&&q.front&&!along?'':'none';s.style.left=q.x+'px';s.style.top=q.y+'px'});
+  PLN.forEach(([,p],i)=>{const s=spans[DIRS.length+i];if(!s)return;const q=project(p);s.style.display=view.planes&&q.front?'':'none';s.style.left=q.x+'px';s.style.top=q.y+'px'});
+  // pulse highlight for pinned target
+  pulse=(t||0)/1000;
+  if(quiz.pin){const k=.55+.35*Math.sin(pulse*5);P[quiz.pin].meshes.forEach(m=>{if(m.visible){m.material.emissive.setRGB(1*k,.78*k,.1*k)}});
+    const pe=$('#pinLayer .pin');if(pe){const c=pinPoint(quiz.pin);const q=project([c.x,c.y,c.z]);pe.style.left=q.x+'px';pe.style.top=q.y+'px';pe.style.display=q.front?'':'none';}}
+  R.renderer.render(R.scene,R.camera);
+}
+
+/* ---------- visibility ---------- */
+function quiz3D(){return route==='quiz'&&quiz.cur&&quiz.cur.type!=='mc'&&!quiz.finished;}
+function applyVisibility(){
+  if(!R)return;
+  const q=quiz3D()?quiz.cur:null;
+  const mode=q?layerOf(q.pid):view.mode;
+  const sex=q&&P[q.pid].sex?P[q.pid].sex:view.sex;
+  Object.values(P).forEach(p=>{const lay=layerOf(p.id);let vis=lay===mode;
+    if(vis&&lay==='org') vis=q?p.system===P[q.pid].system:view.sys.has(p.system);
+    if(p.sex&&p.sex!==sex) vis=false;
+    if(q&&p.extra) vis=false;
+    p.meshes.forEach(m=>m.visible=vis);});
+  Object.entries(L).forEach(([k,g])=>g.visible=k===mode);
+  CTX.flesh.visible=mode==='mus';
+  CTX.ghost.visible=mode==='org'||mode==='skel';
+  CTX.ghost.children.forEach(m=>m.material.opacity=mode==='skel'?.06:.1);
+  PLANES.visible=view.planes&&!q;
+  R.pick=[];Object.values(P).forEach(p=>p.meshes.forEach(m=>{if(m.visible)R.pick.push(m)}));
+  $('#stageMode').textContent=q?(q.type==='find'?'Quiz · find it':'Quiz · name the pin')+' — '+(mode==='org'?SYS[P[q.pid].system].label:MODE_LABEL[mode]):MODE_LABEL[mode];
+  refreshHighlights();
+}
+function setEm(pid,r,g,b){P[pid].meshes.forEach(m=>m.material.emissive.setRGB(r,g,b));}
+function refreshHighlights(){
+  if(!R)return;
+  Object.values(P).forEach(p=>p.meshes.forEach(m=>m.material.emissive.copy(m.userData.baseEm)));
+  if(route!=='quiz'||!quiz3D()){
+    if(view.sel&&P[view.sel]) setEm(view.sel,.42,.36,.05);
+    if(view.hover&&view.hover!==view.sel) setEm(view.hover,.2,.2,.2);
+  } else {
+    if(quiz.mark) Object.entries(quiz.mark).forEach(([pid,c])=>setEm(pid,...c));
+    if(view.hover&&!quiz.answered&&quiz.cur.type==='find'&&view.hover!==quiz.pin) setEm(view.hover,.22,.22,.22);
+  }
+}
+
+/* ---------- picking ---------- */
+function pickAt(e){const cv=R.renderer.domElement;const r=cv.getBoundingClientRect();
+  R.ptr.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);
+  R.ray.setFromCamera(R.ptr,R.camera);const hit=R.ray.intersectObjects(R.pick,false)[0];return hit?hit.object.userData.pid:null;}
+function setupPointer(cv){
+  let down=null;
+  const tip=$('#tip');
+  cv.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY}});
+  cv.addEventListener('pointermove',e=>{
+    if(e.buttons) {tip.hidden=true;return;}
+    const pid=pickAt(e);
+    if(pid!==view.hover){view.hover=pid;refreshHighlights();}
+    const showName=pid&&!(quiz3D()&&!quiz.answered);
+    if(showName){const r=$('#stage').getBoundingClientRect();tip.hidden=false;tip.textContent=cap1(P[pid].name);tip.style.left=(e.clientX-r.left)+'px';tip.style.top=(e.clientY-r.top)+'px';}
+    else tip.hidden=true;
+    cv.style.cursor=pid?'pointer':'grab';
+  });
+  cv.addEventListener('pointerleave',()=>{tip.hidden=true;if(view.hover){view.hover=null;refreshHighlights();}});
+  cv.addEventListener('pointerup',e=>{
+    if(!down)return;const moved=Math.hypot(e.clientX-down.x,e.clientY-down.y);down=null;if(moved>6)return;
+    const pid=pickAt(e);
+    if(quiz3D()){ if(quiz.cur.type==='find'&&!quiz.answered&&pid) answerFind(pid); else if(quiz.answered&&pid) showTipName(pid,e); return;}
+    if(pid) select(pid,false);
+  });
+}
+function showTipName(pid,e){const tip=$('#tip');const r=$('#stage').getBoundingClientRect();tip.hidden=false;tip.textContent=cap1(P[pid].name);tip.style.left=(e.clientX-r.left)+'px';tip.style.top=(e.clientY-r.top)+'px';}
+
+/* ---------- camera ---------- */
+const VIEWS={dorsal:[0,9,-1.2],ventral:[0,-9,1.2],left:[9,.6,0],right:[-9,.6,0],anterior:[0,1.2,9],posterior:[0,1.2,-9],reset:[5.6,4.6,4.4]};
+function goView(name,target){if(!R)return;const t=target||(view.mode==='org'?new THREE.Vector3(0,0,.1):new THREE.Vector3(0,0,-.6));
+  const d=VIEWS[name];const off=new THREE.Vector3(...d).normalize().multiplyScalar(view.mode==='org'||(quiz3D()&&layerOf(quiz.cur.pid)==='org')?6:9);
+  R.tween={pos:t.clone().add(off),target:t.clone()};}
+function meshCenter(m){return new THREE.Box3().setFromObject(m).getCenter(_v());}
+function partMeshes(pid){const ms=P[pid].meshes.filter(m=>m.visible);const left=ms.filter(m=>meshCenter(m).x>.02);return left.length&&left.length<ms.length?left:ms;}
+function partBox(pid){const b=new THREE.Box3();partMeshes(pid).forEach(m=>b.expandByObject(m));return b;}
+function pinPoint(pid){const b=partBox(pid);const c=b.getCenter(_v());c.y=Math.max(c.y,b.max.y-0.01);return c;}
+function focusPart(pid,dirHint){
+  if(!R)return;const b=partBox(pid);if(b.isEmpty())return;const c=b.getCenter(_v());const size=b.getSize(_v()).length();
+  let dir;
+  if(dirHint) dir=dirHint.clone();
+  else {const lay=layerOf(pid);
+    if(lay==='org') dir=new THREE.Vector3(c.x*.6, c.y>.06?1:-1, .35);
+    else {dir=new THREE.Vector3(c.x, c.y-0, 0);if(dir.length()<.25)dir.set(0,c.y>=-.1?1:-1,0);dir.normalize();dir.y+=.45*Math.sign(dir.y||1);dir.z+=.25;}
+  }
+  dir.normalize();const dist=THREE.MathUtils.clamp(size*3.2,2.2,7);
+  R.tween={pos:c.clone().addScaledVector(dir,dist),target:c.clone()};
+}
+
+/* ---------- explore UI ---------- */
+function setMode(m){view.mode=m;$$('#layerBtns button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===m));
+  $('#sysBox').hidden=m!=='org';
+  if(view.sel&&layerOf(view.sel)!==m){view.sel=null;renderInfo();}
+  applyVisibility();renderList();goView(m==='org'?'ventral':(m==='mus'?'ventral':'reset'));}
+function setSex(s){view.sex=s;$$('[data-sex]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.sex===s));
+  if(view.sel&&P[view.sel].sex&&P[view.sel].sex!==s){view.sel=null;renderInfo();}applyVisibility();renderList();}
+function renderSysChips(){$('#sysChips').innerHTML=ORG_SYS.map(s=>`<button type="button" class="chip" data-osys="${s}" aria-pressed="${view.sys.has(s)}">${SYS[s].label}</button>`).join('');}
+function visibleInExplore(p){const lay=layerOf(p.id);if(lay!==view.mode)return false;if(lay==='org'&&!view.sys.has(p.system))return false;if(p.sex&&p.sex!==view.sex)return false;return true;}
+function renderList(){
+  const q=$('#pSearch').value.trim().toLowerCase();
+  const items=Object.values(P).filter(p=>visibleInExplore(p)&&(!q||p.name.toLowerCase().includes(q)||p.aliases.some(a=>a.includes(q))));
+  const groups={};items.forEach(p=>{const g=view.mode==='org'?SYS[p.system].label+' · '+p.group:p.group;(groups[g]=groups[g]||[]).push(p)});
+  $('#plist').innerHTML=Object.entries(groups).map(([g,ps])=>`<div class="grp">${esc(g)}</div>`+ps.map(p=>`<button type="button" role="listitem" data-pid="${p.id}" aria-pressed="${view.sel===p.id}">${esc(cap1(p.name))}${p.extra?' <small>(context)</small>':''}</button>`).join('')).join('')||'<p class="note" style="padding:6px">No parts match.</p>';
+}
+function renderInfo(){
+  const p=view.sel&&P[view.sel];const box=$('#info');
+  if(!p){box.innerHTML='<p class="meta">Nothing selected</p><h3>Click a structure</h3><p class="note">Hover to see names, click to read what it is and what it does. Selected parts glow on the model.</p>';return;}
+  const info=p.action?p.info.replace(/ Action:.*$/,''):p.info;
+  box.innerHTML=`<p class="meta">${esc(SYS[p.system].label)} · ${esc(p.group)}</p><h3>${esc(cap1(p.name))}</h3>`+
+    (p.action?`<p class="action"><strong>Action:</strong> ${esc(p.action)}</p>`:'')+
+    `<p>${esc(info)}</p>`+(p.aliases.length?`<p class="aka">Also accepted: ${esc(p.aliases.slice(0,5).join(', '))}</p>`:'')+
+    `<div class="row"><button class="btn ghost" type="button" id="focusBtn">Zoom to it</button><button class="btn ghost" type="button" id="clearBtn">Clear</button></div>`;
+  $('#focusBtn').onclick=()=>focusPart(p.id);$('#clearBtn').onclick=()=>{view.sel=null;renderInfo();renderList();refreshHighlights();};
+}
+function select(pid,zoom){const p=P[pid];
+  if(layerOf(pid)!==view.mode){setMode(layerOf(pid));}
+  if(p.system&&SYS[p.system].layer==='org'&&!view.sys.has(p.system)){view.sys.add(p.system);renderSysChips();applyVisibility();}
+  if(p.sex&&p.sex!==view.sex) setSex(p.sex);
+  view.sel=pid;renderInfo();renderList();refreshHighlights();if(zoom)focusPart(pid);say(cap1(p.name)+' selected');}
+function gotoPart(pid){location.hash='#explore';setTimeout(()=>select(pid,true),60);}
+
+/* ---------- routing ---------- */
+function mountStage(slot){const st=$('#stage');const s=$(slot);if(st.parentElement!==s)s.appendChild(st);resize();}
+function showRoute(r){
+  if(!['explore','learn','remember','quiz'].includes(r))r='explore';
+  route=r;$$('main > section').forEach(s=>s.hidden=s.id!==r);
+  $$('.tabs a').forEach(a=>{if(a.dataset.route===r)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+  if(r==='explore'){mountStage('#slot-explore');clearPin();$('#stageHint').hidden=false;}
+  if(r==='quiz'&&quiz.cur&&!quiz.finished){if(quiz.cur.type!=='mc')mountStage('#slot-quiz');}
+  applyVisibility();
+  if(r==='explore'&&R)goView('reset');
+}
+window.addEventListener('hashchange',()=>{showRoute(location.hash.slice(1))});
+
+/* ---------- learn ---------- */
+function renderLearn(){
+  $('#learnSystems').innerHTML=LEARN.map(L=>{
+    const parts=quizParts().filter(p=>p.system===L.sys);
+    return `<article class="card sys-card" id="learn-${L.sys}"><header><div><p class="eyebrow">${esc(SYS[L.sys].label)}</p><h3>${esc(L.title)}</h3></div>
+      <button class="btn ghost" type="button" data-goto-mode="${L.mode}" data-goto-sys="${L.sys}">Show on model</button></header>
+      <div class="prose">${L.html}</div>
+      <div><span class="lbl">Checklist · ${parts.length} structures</span><div class="chips">${parts.map(p=>`<button type="button" class="chip" data-goto="${p.id}">${esc(p.name)}</button>`).join('')}</div></div>
+      <details class="cy"><summary>Check yourself</summary>${L.cy.map(([q,a])=>`<p><strong>${esc(q)}</strong><br>${esc(a)}</p>`).join('')}</details></article>`}).join('');
+}
+
+/* ---------- remember ---------- */
+function renderRemember(){
+  $('#mnGrid').innerHTML=MNEMONICS.map(m=>`<div class="mn"><span class="eyebrow">${esc(m.t)}</span><span class="phrase">${esc(m.p)}</span><span class="key">${esc(m.k)}</span></div>`).join('');
+  $('#vsGrid').innerHTML=VERSUS.map(v=>`<div class="vs"><div><b>${esc(v[0])}</b><span>${esc(v[1])}</span></div><div><b>${esc(v[2])}</b><span>${esc(v[3])}</span></div></div>`).join('');
+  $('#fcSys').innerHTML='<option value="all">All systems</option>'+Object.keys(SYS).filter(s=>s!=='methods').map(s=>`<option value="${s}">${SYS[s].label}</option>`).join('');
+}
+const fc={deck:[],i:0,known:new Set(store.get('known',[]))};
+function fcBuild(){const s=$('#fcSys').value;let d=quizParts().filter(p=>s==='all'||p.system===s);if($('#fcReview').checked)d=d.filter(p=>!fc.known.has(p.id));fc.deck=d.map(p=>p.id);fc.i=0;fcShow();}
+function fcShow(){const card=$('#fc');card.setAttribute('aria-pressed','false');
+  if(!fc.deck.length){$('#fcFront').textContent='All cards known';$('#fcFrontSys').textContent='';$('#fcBack').textContent='Untick "Only cards to review" to see the whole set.';$('#fcCount').textContent='';return;}
+  const p=P[fc.deck[fc.i]];$('#fcFront').textContent=cap1(p.name);$('#fcFrontSys').textContent=SYS[p.system].label+' · '+p.group;
+  $('#fcBackSys').textContent=cap1(p.name);
+  $('#fcBack').innerHTML=(p.action?`<strong>${esc(cap1(p.action))}.</strong> `:'')+esc(p.action?p.info.replace(/ Action:.*$/,''):p.info);
+  $('#fcCount').textContent=`Card ${fc.i+1} of ${fc.deck.length} · ${fc.known.size} of ${quizParts().length} marked known`+(fc.known.has(p.id)?' · this one: known':'');
+  updateProg();}
+function fcNext(){if(!fc.deck.length)return;fc.i=(fc.i+1)%fc.deck.length;fcShow();}
+
+/* ---------- answer matching ---------- */
+function norm(s){return String(s).toLowerCase().replace(/[–—-]/g,' ').replace(/[^a-z0-9 ]/g,' ').replace(/\b(the|a|an|of)\b/g,' ').replace(/\s+/g,' ').trim();}
+function variants(p){const out=new Set();[p.name,...p.aliases].forEach(n=>{
+  const base=norm(n.replace(/\(.*?\)/g,' '));if(base)out.add(base);
+  const m=n.match(/\((.*?)\)/);if(m){const inner=norm(m[1]);if(inner&&!/male|manus|pes|\d/.test(inner))out.add(inner);}
+  out.add(norm(n));});
+  const more=new Set();out.forEach(v=>{more.add(v);more.add(v.replace(/ /g,''));more.add(v.replace(/s\b/g,''));more.add(v.replace(/s\b/g,'').replace(/ /g,''));});
+  more.delete('');return more;}
+function lev(a,b){if(a===b)return 0;const m=a.length,n=b.length;if(!m)return n;if(!n)return m;let prev=Array.from({length:n+1},(_,i)=>i);
+  for(let i=1;i<=m;i++){const cur=[i];for(let j=1;j<=n;j++)cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));prev=cur;}return prev[n];}
+function matches(ans,pid){
+  const a=norm(ans);if(!a)return false;const forms=[a,a.replace(/ /g,''),a.replace(/s\b/g,''),a.replace(/s\b/g,'').replace(/ /g,'')];
+  const target=variants(P[pid]);
+  if(forms.some(f=>target.has(f)))return true;
+  // reject exact names of other structures (ilium vs ileum etc.)
+  for(const p of Object.values(P)){if(p.id===pid)continue;const v=variants(p);if(forms.some(f=>v.has(f)))return false;}
+  for(const t of target){const tol=t.length<=4?0:t.length<=8?1:2;if(forms.some(f=>lev(f,t)<=tol))return true;}
+  return false;}
+
+/* ---------- quiz ---------- */
+const quiz={items:[],i:0,cur:null,answered:false,results:[],finished:true,pin:null,mark:null,timer:null,tleft:0};
+const qcfg={fmts:new Set(['name','find','mc']),sys:new Set(Object.keys(SYS)),n:25,timer:false};
+function genMC(sysSet){
+  const out=[];
+  MCQ.forEach(([s,q,c,w1,w2,w3,ex])=>{if(sysSet.has(s))out.push({type:'mc',sys:s,q,opts:[c,w1,w2,w3],ans:c,ex})});
+  // muscle actions
+  if(sysSet.has('muscular')){const ms=quizParts().filter(p=>p.action);const acts=[...new Set(ms.map(p=>p.action))];
+    ms.forEach(p=>{const wrong=shuffle(acts.filter(a=>a!==p.action)).slice(0,3);out.push({type:'mc',sys:'muscular',q:`What is the action of the ${p.name}?`,opts:[p.action,...wrong],ans:p.action,ex:p.info,pid:p.id});});
+    acts.forEach(a=>{const who=ms.filter(p=>p.action===a);if(who.length!==1)return;const p=who[0];const wrong=shuffle(ms.filter(x=>x.action!==a)).slice(0,3).map(x=>x.name);
+      out.push({type:'mc',sys:'muscular',q:`Which muscle ${a}?`,opts:[p.name,...wrong],ans:p.name,ex:p.info,pid:p.id});});}
+  // skeletal division
+  if(sysSet.has('skeletal')){const groups=[...new Set(quizParts().filter(p=>p.system==='skeletal').map(p=>p.group))];
+    quizParts().filter(p=>p.system==='skeletal').forEach(p=>{const wrong=shuffle(groups.filter(g=>g!==p.group)).slice(0,3);
+      out.push({type:'mc',sys:'skeletal',q:`The ${p.name} belongs to which part of the skeleton?`,opts:[p.group,...wrong],ans:p.group,ex:p.info,pid:p.id});});}
+  // description matching for organ systems
+  ORG_SYS.forEach(s=>{if(!sysSet.has(s))return;const ps=quizParts().filter(p=>p.system===s);
+    ps.forEach(p=>{const first=x=>x.info.split(/\.\s/)[0].replace(/\.$/,'')+'.';const pool=ps.filter(x=>x.id!==p.id&&first(x)!==first(p));if(pool.length<3)return;
+      const wrong=shuffle(pool).slice(0,3).map(first);out.push({type:'mc',sys:s,q:`Which description fits the ${p.name}?`,opts:[first(p),...wrong],ans:first(p),ex:p.info,pid:p.id});});});
+  const seen=new Set();
+  return out.filter(it=>!seen.has(it.q)&&seen.add(it.q)).map(it=>Object.assign(it,{opts:shuffle(it.opts)}));
+}
+function buildPool(){
+  const pools={name:[],find:[],mc:[]};
+  const can3D=!!R;
+  quizParts().forEach(p=>{if(!qcfg.sys.has(p.system))return;if(can3D&&qcfg.fmts.has('name'))pools.name.push({type:'name',pid:p.id,sys:p.system});if(can3D&&qcfg.fmts.has('find'))pools.find.push({type:'find',pid:p.id,sys:p.system});});
+  if(qcfg.fmts.has('mc'))pools.mc=genMC(qcfg.sys);
+  Object.keys(pools).forEach(k=>pools[k]=shuffle(pools[k]));
+  return pools;
+}
+function poolNote(){const p=buildPool();const tot=p.name.length+p.find.length+p.mc.length;
+  $('#qPoolNote').textContent=tot?`${tot} questions available (${p.name.length} name-the-pin, ${p.find.length} find-it, ${p.mc.length} multiple choice).`:'Pick at least one format and topic.';
+  $('#qStart').disabled=!tot;}
+function startQuiz(items){
+  if(!items){const p=buildPool();const keys=['name','find','mc'].filter(k=>p[k].length);items=[];const n=qcfg.n;
+    // round-robin so formats mix, without repeating the same part twice in 3D rounds
+    const usedPid=new Set();let guard=0;
+    while(items.length<n&&keys.some(k=>p[k].length)&&guard<5000){guard++;for(const k of keys){if(items.length>=n)break;let it=p[k].shift();
+      while(it&&it.type!=='mc'&&usedPid.has(it.pid)&&p[k].length) {p[k].push(it);it=p[k].shift();if(p[k].every(x=>usedPid.has(x.pid)))break;}
+      if(it){items.push(it);if(it.type!=='mc')usedPid.add(it.pid);}}}
+  }
+  Object.assign(quiz,{items:shuffle(items),i:0,results:[],finished:false});
+  $('#qSetup').hidden=true;$('#qDone').hidden=true;$('#qRun').hidden=false;showItem();
+}
+function clearPin(){quiz.pin=null;quiz.mark=null;$('#pinLayer').innerHTML='';}
+function stopTimer(){if(quiz.timer){clearInterval(quiz.timer);quiz.timer=null;}}
+function showItem(){
+  stopTimer();clearPin();
+  const it=quiz.items[quiz.i];quiz.cur=it;quiz.answered=false;
+  const is3D=it.type!=='mc';
+  $('#qRun').classList.toggle('textonly',!is3D);
+  $('#slot-quiz').hidden=!is3D;
+  const head=`<div class="qhead"><span>Question ${quiz.i+1} / ${quiz.items.length}</span><span>${esc(SYS[it.sys].label)}</span><span>Score ${quiz.results.filter(r=>r.ok).length}</span></div>`+
+    `<div class="qmap" aria-hidden="true">${quiz.items.map((_,k)=>`<span class="${k<quiz.results.length?(quiz.results[k].ok?'ok':'no'):''}${k===quiz.i?' cur':''}"></span>`).join('')}</div>`+
+    (qcfg.timer&&is3D?'<div class="timer" aria-hidden="true"><i id="tbar"></i></div>':'');
+  let body='';
+  if(it.type==='mc'){
+    body=`<p class="qprompt" id="qp">${esc(it.q)}</p><div class="opts" role="group" aria-labelledby="qp">${it.opts.map((o,k)=>`<button type="button" class="opt" data-k="${k}"><kbd>${k+1}</kbd><span>${esc(cap1(o))}</span></button>`).join('')}</div><div id="fb"></div><p class="kbdhint">Keys 1–4 answer · Enter for next</p>`;
+  } else if(it.type==='name'){
+    body=`<p class="qprompt" id="qp">Name the pinned structure.</p><p class="note">Rotate and zoom as needed. Spelling slips are forgiven.</p>
+      <form class="ans" id="ansForm" autocomplete="off"><label class="sr-only" for="ansIn">Your answer</label><input id="ansIn" type="text" placeholder="Type the name" spellcheck="false" autocapitalize="off"><button class="btn" type="submit">Check</button><button class="btn ghost" type="button" id="skipBtn">Show me</button></form><div id="fb"></div><p class="kbdhint">Enter to check · Enter again for next</p>`;
+  } else {
+    body=`<p class="qprompt" id="qp">Click the <span style="color:var(--accent)">${esc(P[it.pid].name)}</span>.</p><p class="note">Rotate the specimen to look for it. Names are hidden until you answer. Keyboard: press <kbd>.</kbd> and <kbd>,</kbd> to cycle through structures, Enter to choose.</p><div id="fb"></div><div class="row"><button class="btn ghost" type="button" id="skipBtn">I don't know</button></div>`;
+  }
+  $('#qCard').innerHTML=head+body;
+  if(is3D){mountStage('#slot-quiz');$('#stageHint').hidden=true;applyVisibility();
+    const lay=layerOf(it.pid);
+    if(it.type==='name'){quiz.pin=it.pid;$('#pinLayer').innerHTML='<div class="pin"><b><span>?</span></b><i></i></div>';setTimeout(()=>focusPart(it.pid),30);setTimeout(()=>{const i=$('#ansIn');if(i)i.focus({preventScroll:true})},80);}
+    else {quiz.cycle=-1;goView(lay==='org'||lay==='mus'?'ventral':'reset');}
+    if(qcfg.timer){quiz.tleft=30;quiz.timer=setInterval(()=>{quiz.tleft-=.25;const b=$('#tbar');if(b)b.style.width=Math.max(0,quiz.tleft/30*100)+'%';if(quiz.tleft<=0){stopTimer();if(!quiz.answered)reveal(false,'Time is up.');}},250);}
+  } else {applyVisibility();}
+  bindItem();
+  say(`Question ${quiz.i+1}. `+$('#qp').textContent);
+}
+function bindItem(){
+  const it=quiz.cur;
+  $$('.opt').forEach(b=>b.onclick=()=>answerMC(+b.dataset.k));
+  const f=$('#ansForm');if(f)f.onsubmit=e=>{e.preventDefault();if(quiz.answered){next();return;}const v=$('#ansIn').value;if(!v.trim())return;reveal(matches(v,it.pid),null,v);};
+  const sk=$('#skipBtn');if(sk)sk.onclick=()=>{if(!quiz.answered)reveal(false,'Skipped.')};
+}
+function answerMC(k){if(quiz.answered)return;const it=quiz.cur;const ok=it.opts[k]===it.ans;
+  $$('.opt').forEach((b,j)=>{b.disabled=true;if(it.opts[j]===it.ans)b.classList.add('ok');else if(j===k)b.classList.add('no');});
+  const okIdx=it.opts.indexOf(it.ans);
+  $$('.opt')[okIdx].querySelector('span').insertAdjacentHTML('beforeend',' <strong>✓ correct</strong>');
+  if(!ok)$$('.opt')[k].querySelector('span').insertAdjacentHTML('beforeend',' <strong>✗ your pick</strong>');
+  reveal(ok,null);}
+function answerFind(pid){const ok=pid===quiz.cur.pid;reveal(ok,ok?null:`You clicked the ${P[pid].name}.`,null,pid);}
+function reveal(ok,note,typed,clicked){
+  if(quiz.answered)return;quiz.answered=true;stopTimer();
+  const it=quiz.cur;quiz.results.push({ok,it,typed,clicked});
+  const p=it.pid&&P[it.pid];
+  let msg='';
+  if(it.type==='mc') msg=`<strong>${ok?'✓ Correct':'✗ Not quite'}</strong><span>${esc(it.ex)}</span>`;
+  else msg=`<strong>${ok?'✓ Correct':'✗ Not quite'} — ${esc(cap1(p.name))}</strong>`+(note?`<span>${esc(note)}</span>`:'')+(typed&&!ok?`<span>You wrote "${esc(typed)}".</span>`:'')+`<span>${esc(p.info)}</span>`;
+  $('#fb').innerHTML=`<div class="fb ${ok?'ok':'no'}" role="status">${msg}</div><div class="row" style="margin-top:10px"><button class="btn" type="button" id="nextBtn">${quiz.i+1<quiz.items.length?'Next question →':'See results'}</button>${p?`<button class="btn ghost" type="button" id="studyBtn">Study in Explore</button>`:''}</div>`;
+  $('#nextBtn').onclick=next;const sb=$('#studyBtn');if(sb)sb.onclick=()=>gotoPart(it.pid);
+  if(it.type!=='mc'){
+    quiz.pin=null;$('#pinLayer').innerHTML='';
+    quiz.mark={};quiz.mark[it.pid]=ok?[.1,.75,.25]:[.1,.75,.25];if(clicked&&!ok)quiz.mark[clicked]=[.85,.12,.1];
+    refreshHighlights();if(!ok)focusPart(it.pid);
+  }
+  const inp=$('#ansIn');if(inp)inp.disabled=true;
+  $('#nextBtn').focus({preventScroll:true});
+  say((ok?'Correct. ':'Incorrect. ')+(p?'Answer: '+p.name:'Answer: '+it.ans));
+  updateProg();
+}
+function next(){if(!quiz.answered)return;quiz.i++;if(quiz.i>=quiz.items.length)finish();else showItem();}
+function finish(){
+  stopTimer();clearPin();quiz.finished=true;quiz.cur=null;
+  $('#qRun').hidden=true;mountStage('#slot-explore');
+  const by={};quiz.results.forEach(r=>{const s=r.it.sys;by[s]=by[s]||{ok:0,n:0};by[s].n++;if(r.ok)by[s].ok++;});
+  const tot=quiz.results.length,ok=quiz.results.filter(r=>r.ok).length,pct=tot?Math.round(ok/tot*100):0;
+  const hist=store.get('hist',{});Object.entries(by).forEach(([s,v])=>{hist[s]={pct:Math.round(v.ok/v.n*100),at:Date.now()}});hist._last=pct;store.set('hist',hist);
+  const missed=quiz.results.filter(r=>!r.ok);
+  $('#qDone').innerHTML=`<div class="prose" style="max-width:none"><p class="eyebrow">Results</p><h3 style="font-size:1.6rem">${ok} / ${tot} · ${pct}%</h3>
+    <div style="display:grid;gap:10px;max-width:520px">${Object.entries(by).map(([s,v])=>`<div class="score-row"><span>${esc(SYS[s].label)}</span><span>${v.ok}/${v.n}</span><div class="bar"><i style="width:${v.ok/v.n*100}%"></i></div></div>`).join('')}</div>
+    ${missed.length?`<h4>Missed</h4><ul class="missed">${missed.map(r=>`<li>${r.it.type==='mc'?esc(r.it.q)+' → <strong>'+esc(r.it.ans)+'</strong>':(r.it.type==='find'?'Find: ':'Name the pin: ')+'<strong>'+esc(P[r.it.pid].name)+'</strong>'} ${r.it.pid?`<button class="chip" type="button" data-goto="${r.it.pid}">view</button>`:''}</li>`).join('')}</ul>`:'<p>No misses. Try a longer run or switch on the practical timer.</p>'}
+    <div class="row">${missed.length?'<button class="btn" type="button" id="retryBtn">Retry missed</button>':''}<button class="btn ghost" type="button" id="againBtn">New quiz</button></div></div>`;
+  $('#qDone').hidden=false;$('#qSetup').hidden=false;
+  const rb=$('#retryBtn');if(rb)rb.onclick=()=>startQuiz(missed.map(r=>Object.assign({},r.it,r.it.type==='mc'?{opts:shuffle(r.it.opts)}:{})));
+  $('#againBtn').onclick=()=>{$('#qDone').hidden=true;$('#qSetup').scrollIntoView({behavior:'smooth'});};
+  applyVisibility();updateProg();say(`Quiz finished. ${ok} of ${tot} correct.`);
+}
+function cycleFind(dir){if(!R)return;const vis=[...new Set(R.pick.map(m=>m.userData.pid))];if(!vis.length)return;
+  quiz.cycle=((quiz.cycle==null?-1:quiz.cycle)+dir+vis.length)%vis.length;view.hover=vis[quiz.cycle];refreshHighlights();focusPart(view.hover);say('Structure '+(quiz.cycle+1)+' of '+vis.length+' highlighted');}
+
+/* ---------- progress ---------- */
+function updateProg(){const h=store.get('hist',{});$('#prog').textContent=`Known ${fc.known.size}/${quizParts().length}`+(h._last!=null?` · last quiz ${h._last}%`:'');}
+
+/* ---------- theme ---------- */
+const THEMES=['auto','light','dark'];
+function applyTheme(t){if(t==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',t);
+  $('#themeBtn').textContent='Theme: '+t;store.set('theme',t);setTimeout(setStageBg,20);}
+
+/* ---------- wire up ---------- */
+function wire(){
+  $('#layerBtns').onclick=e=>{const b=e.target.closest('[data-mode]');if(b)setMode(b.dataset.mode)};
+  $('#sysChips').onclick=e=>{const b=e.target.closest('[data-osys]');if(!b)return;const s=b.dataset.osys;if(view.sys.has(s)){if(view.sys.size>1)view.sys.delete(s);}else view.sys.add(s);
+    if(view.sel&&!view.sys.has(P[view.sel].system)){view.sel=null;renderInfo();}renderSysChips();applyVisibility();renderList();};
+  $$('[data-sex]').forEach(b=>b.onclick=()=>setSex(b.dataset.sex));
+  $('#optDirs').onchange=e=>{view.dirs=e.target.checked};
+  $('#optPlanes').onchange=e=>{view.planes=e.target.checked;applyVisibility();};
+  $('#pSearch').oninput=renderList;
+  $('#plist').onclick=e=>{const b=e.target.closest('[data-pid]');if(b)select(b.dataset.pid,true)};
+  $$('.stage-bar [data-view]').forEach(b=>b.onclick=()=>goView(b.dataset.view));
+  document.addEventListener('click',e=>{
+    const g=e.target.closest('[data-goto]');if(g){gotoPart(g.dataset.goto);return;}
+    const gm=e.target.closest('[data-goto-mode]');if(gm){const m=gm.dataset.gotoMode,s=gm.dataset.gotoSys;location.hash='#explore';
+      setTimeout(()=>{if(m==='org'){view.sys=new Set([s]);renderSysChips();}setMode(m);},60);}
+  });
+  // theme
+  $('#themeBtn').onclick=()=>{const cur=store.get('theme','auto');applyTheme(THEMES[(THEMES.indexOf(cur)+1)%3]);};
+  // flashcards
+  $('#fc').onclick=()=>{const c=$('#fc');c.setAttribute('aria-pressed',c.getAttribute('aria-pressed')==='true'?'false':'true');};
+  $('#fcSys').onchange=fcBuild;$('#fcReview').onchange=fcBuild;
+  $('#fcKnew').onclick=()=>{if(!fc.deck.length)return;fc.known.add(fc.deck[fc.i]);store.set('known',[...fc.known]);if($('#fcReview').checked){fc.deck.splice(fc.i,1);if(fc.i>=fc.deck.length)fc.i=0;fcShow();}else fcNext();};
+  $('#fcAgain').onclick=()=>{if(!fc.deck.length)return;fc.known.delete(fc.deck[fc.i]);store.set('known',[...fc.known]);fcNext();};
+  $('#fcPrev').onclick=()=>{if(!fc.deck.length)return;fc.i=(fc.i-1+fc.deck.length)%fc.deck.length;fcShow();};
+  $('#fcShuf').onclick=()=>{fc.deck=shuffle(fc.deck);fc.i=0;fcShow();};
+  $('#fcShow').onclick=()=>{if(fc.deck.length)gotoPart(fc.deck[fc.i])};
+  // quiz setup
+  $('#qSystems').innerHTML=Object.keys(SYS).map(s=>`<button type="button" class="chip" data-qsys="${s}" aria-pressed="true">${SYS[s].label}</button>`).join('');
+  $('#qSystems').onclick=e=>{const b=e.target.closest('[data-qsys]');if(!b)return;const s=b.dataset.qsys;qcfg.sys.has(s)?qcfg.sys.delete(s):qcfg.sys.add(s);b.setAttribute('aria-pressed',qcfg.sys.has(s));poolNote();};
+  $('#qFormats').onclick=e=>{const b=e.target.closest('[data-fmt]');if(!b)return;const f=b.dataset.fmt;qcfg.fmts.has(f)?qcfg.fmts.delete(f):qcfg.fmts.add(f);b.setAttribute('aria-pressed',qcfg.fmts.has(f));poolNote();};
+  $('#qCount').onclick=e=>{const b=e.target.closest('[data-n]');if(!b)return;qcfg.n=+b.dataset.n;$$('#qCount [data-n]').forEach(x=>x.setAttribute('aria-pressed',x===b));};
+  $('#qTimer').onchange=e=>{qcfg.timer=e.target.checked};
+  $('#qStart').onclick=()=>startQuiz();
+  // keyboard
+  document.addEventListener('keydown',e=>{
+    const tag=(e.target.tagName||'').toLowerCase();const typing=tag==='input'||tag==='textarea'||tag==='select';
+    if(route==='quiz'&&quiz.cur&&!quiz.finished){
+      if(quiz.cur.type==='mc'&&!quiz.answered&&/^[1-4]$/.test(e.key)&&!typing){answerMC(+e.key-1);e.preventDefault();return;}
+      if(quiz.answered&&e.key==='Enter'&&tag!=='button'&&!(tag==='input'&&e.target.id==='ansIn')){next();e.preventDefault();return;}
+      if(quiz.cur.type==='find'&&!quiz.answered&&!typing){
+        if(e.key==='.'){cycleFind(1);e.preventDefault();} else if(e.key===','){cycleFind(-1);e.preventDefault();}
+        else if(e.key==='Enter'&&view.hover&&tag!=='button'){answerFind(view.hover);e.preventDefault();}
+      }
+    }
+    if(route==='remember'&&!typing&&e.target.id!=='fc'){
+      if(e.key===' '){$('#fc').click();e.preventDefault();} else if(e.key==='ArrowRight'){fcNext();} else if(e.key==='ArrowLeft'){$('#fcPrev').click();}
+    }
+  });
+}
+
+function boot(){
+  document.documentElement.lang='en';
+  applyTheme(store.get('theme','auto'));
+  renderSysChips();renderLearn();renderRemember();wire();
+  if(init3D())buildDirLabels();
+  fcBuild();renderList();renderInfo();poolNote();updateProg();
+  showRoute((location.hash||'#explore').slice(1));
+  if(window.matchMedia)matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',setStageBg);
+}
+boot();
+
+})();
+</script>
+
+</body></html>
